@@ -135,3 +135,33 @@ fragment float4 scanFragment(
     
     return float4(c * in.gain * params.scanGain, 1.0);
 }
+
+kernel void bendrScan(
+    texture2d<float, access::sample> inTex  [[texture(0)]],
+    texture2d<float, access::write>  outTex [[texture(1)]],
+    constant ScanParams&             params [[buffer(0)]],
+    uint2                            gid    [[thread_position_in_grid]]
+) {
+    if (gid.x >= outTex.get_width() || gid.y >= outTex.get_height()) {
+        return;
+    }
+
+    constexpr sampler smp(address::clamp_to_edge, filter::linear);
+    float2 res = float2(outTex.get_width(), outTex.get_height());
+    float2 uv = (float2(gid) + 0.5) / res;
+
+    float3 col;
+    float2 deflected = beamAt(uv.x, uv.y, col, inTex, params, smp);
+    float2 duv = (deflected + 1.0) * 0.5;
+    duv.y = 1.0 - duv.y;
+
+    float4 src = inTex.sample(smp, clamp(duv, 0.0, 1.0));
+    float y = luma(src.rgb);
+    float3 c = mix(src.rgb, float3(y), params.scanMono);
+
+    if (params.scanHue > 0.002) {
+        c = mix(c, hsv2rgb(float3(fract(params.scanHue + y * 0.35), 0.85, 1.0)) * y, params.scanHue);
+    }
+
+    outTex.write(float4(clamp(c * params.scanGain, 0.0, 2.0), src.a), gid);
+}

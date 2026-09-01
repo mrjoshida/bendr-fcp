@@ -68,39 +68,9 @@ struct FeedbackParams {
     uint generationCount;
 };
 
-// Common GLSL functions ported to MSL
-float h21(float2 p) {
-    p = fract(p * float2(123.34, 456.21));
-    p += dot(p, p + 45.32);
-    return fract(p.x * p.y);
-}
+#include "../../Shared/Metal/BendrCommon.h"
 
-float3 rgb2yiq(float3 c) {
-    return float3(
-        dot(c, float3(0.299, 0.587, 0.114)),
-        dot(c, float3(0.596, -0.274, -0.322)),
-        dot(c, float3(0.211, -0.523, 0.312))
-    );
-}
-
-float3 yiq2rgb(float3 y) {
-    return float3(
-        y.x + 0.956 * y.y + 0.621 * y.z,
-        y.x - 0.272 * y.y - 0.647 * y.z,
-        y.x - 1.106 * y.y + 1.703 * y.z
-    );
-}
-
-float2 wrapUV(float2 p, float mode) {
-    if (mode > 1.5) {
-        float2 t = fract(p * 0.5) * 2.0;
-        return 1.0 - abs(t - 1.0);
-    }
-    if (mode > 0.5) return fract(p);
-    return clamp(p, 0.0, 1.0);
-}
-
-float3 tapTex(texture2d<float, access::sample> tex, sampler s, float2 p, float mode) {
+inline float3 tapTex(texture2d<float, access::sample> tex, sampler s, float2 p, float mode) {
     return tex.sample(s, wrapUV(p, mode)).rgb;
 }
 
@@ -288,13 +258,13 @@ kernel void bendrFeedback(
     // Instead of sampling u_prev and blending, we evaluate the compound feedback over generationCount frames
     // This provides the approximate recursive look. We sample from historical source frames.
     float3 col = src;
-    
-    if (params.generationCount > 0 && params.fbAmount > 0.003) {
+    uint genCount = min(params.generationCount, 16u);
+    if (genCount > 0 && params.fbAmount > 0.003) {
         float3 accumPrev = float3(0.0);
         float weight = 1.0;
         
         // Loop backwards from oldest to newest to build up the effect
-        for (int i = int(params.generationCount) - 1; i >= 0; i--) {
+        for (int i = int(genCount) - 1; i >= 0; i--) {
             // Apply cumulative transforms conceptually (in MSL we just apply one pass to each historical frame,
             // since chaining UV transforms and sampling historically is complex, we just sample the 
             // historical frame as if it were the previous output).

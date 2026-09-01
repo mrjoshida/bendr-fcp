@@ -46,7 +46,7 @@ inline float fbmOptics(float2 p) {
 inline float drawDigit(int d, float2 p) {
     if (p.x < 0.0 || p.x > 1.0 || p.y < 0.0 || p.y > 1.0) return 0.0;
     // 7 segments: 0=top, 1=top-left, 2=top-right, 3=middle, 4=bottom-left, 5=bottom-right, 6=bottom
-    constant int segs[10] = {
+    constexpr int segs[10] = {
         0x77, // 0
         0x24, // 1
         0x5D, // 2

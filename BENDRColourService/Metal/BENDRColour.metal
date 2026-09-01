@@ -87,22 +87,11 @@ float lum_local(texture2d<float, access::sample> tex, sampler s, float2 p) {
     float3 c = tex.sample(s, clamp(p, 0.0, 1.0)).rgb;
     return dot(c, float3(0.299, 0.587, 0.114));
 }
+#include "../../Shared/Metal/BendrCommon.h"
 
-float3 hsv2(float h, float sa, float v) {
+inline float3 hsv2(float h, float sa, float v) {
     float3 k = fract(float3(h) + float3(0.0, 2.0/3.0, 1.0/3.0));
     return v * mix(float3(1.0), clamp(abs(k * 6.0 - 3.0) - 1.0, 0.0, 1.0), sa);
-}
-
-float3 rgb2yiq(float3 c){ 
-    return float3(dot(c, float3(0.299, 0.587, 0.114)), 
-                  dot(c, float3(0.596, -0.274, -0.322)), 
-                  dot(c, float3(0.211, -0.523, 0.312))); 
-}
-
-float3 yiq2rgb(float3 y){ 
-    return float3(y.x + 0.956 * y.y + 0.621 * y.z, 
-                  y.x - 0.272 * y.y - 0.647 * y.z, 
-                  y.x - 1.106 * y.y + 1.703 * y.z); 
 }
 
 [[kernel]]

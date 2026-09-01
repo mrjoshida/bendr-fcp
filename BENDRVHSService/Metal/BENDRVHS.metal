@@ -56,33 +56,11 @@ struct VHSParams {
     float rollBar;
 };
 
-// rgb2yiq and yiq2rgb
-float3 rgb2yiq(float3 c) {
-    return float3(
-        dot(c, float3(0.299, 0.587, 0.114)),
-        dot(c, float3(0.596, -0.274, -0.322)),
-        dot(c, float3(0.211, -0.523, 0.312))
-    );
-}
+#include "../../Shared/Metal/BendrCommon.h"
 
-float3 yiq2rgb(float3 c) {
-    return float3(
-        dot(c, float3(1.0, 0.956, 0.621)),
-        dot(c, float3(1.0, -0.272, -0.647)),
-        dot(c, float3(1.0, -1.106, 1.703))
-    );
-}
-
-float lum(texture2d<float, access::sample> tex, sampler s, float2 p) {
+inline float lum(texture2d<float, access::sample> tex, sampler s, float2 p) {
     float3 c = tex.sample(s, p).rgb;
     return dot(c, float3(0.299, 0.587, 0.114));
-}
-
-float h21(float2 p) {
-    // Basic PRNG for shaders
-    float3 p3  = fract(float3(p.xyx) * .1031);
-    p3 += dot(p3, p3.yzx + 33.33);
-    return fract((p3.x + p3.y) * p3.z);
 }
 
 kernel void bendrVHS(

@@ -75,20 +75,41 @@ open build/Release/BENDRSpatialApp.app
 open build/Release/BENDROpticsApp.app
 ```
 
-## Creating Motion Templates
+## Automated Testing & Verification
 
-After building and registering the plugins, create Motion Templates so they appear in FCP:
+An automated test suite is provided in `Scripts/` to validate the entire codebase without needing FCP open:
 
-1. Open **Apple Motion**
-2. File → New → Final Cut Effect
-3. In the Library, find your BENDR plugin under Filters
-4. Drag it onto the Effect Source layer
-5. Select the filter in the Layers panel
-6. In the Inspector, right-click each parameter → **Publish**
-7. File → Save As Template → Category: "BENDR"
-8. Repeat for each plugin
+```bash
+cd bendr-fcp
 
-The templates will appear in FCP's Effects Browser under the "BENDR" category.
+# Run the complete test suite (Metal compile, Struct alignment, Headless GPU render, Template gen)
+bash Scripts/run_suite.sh
+```
+
+Or run individual verification steps:
+```bash
+# 1. Verify and link all 14 Metal compute shaders
+bash Scripts/verify_metal.sh
+
+# 2. Validate Swift parameter struct memory layouts vs Metal alignments
+swift Scripts/test_struct_alignments.swift
+
+# 3. Dispatch headless GPU compute passes on all 14 kernels
+swift Scripts/headless_render_test.swift
+```
+
+## Motion Templates Installation
+
+You can automatically generate and install Final Cut Pro Motion Templates (`.moef` and `.motr`) for all 14 plugins with one command:
+
+```bash
+python3 Scripts/make_templates.py
+```
+This generates and installs templates directly into:
+- `~/Movies/Motion Templates.localized/Effects.localized/BENDR/`
+- `~/Movies/Motion Templates.localized/Transitions.localized/BENDR/`
+
+The plugins will appear immediately in Final Cut Pro under the **BENDR** category.
 
 ## Project Structure
 

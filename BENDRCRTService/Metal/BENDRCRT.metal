@@ -14,14 +14,9 @@ struct Constants {
     float osdShow, osdGlow, probe, rows;
 };
 
-// Value noise
-float h21(float2 p) {
-    p = fract(p * float2(123.34, 456.21));
-    p += dot(p, p + 45.32);
-    return fract(p.x * p.y);
-}
+#include "../../Shared/Metal/BendrCommon.h"
 
-float vnoise(float2 p) {
+inline float vnoise(float2 p) {
     float2 i = floor(p), f = fract(p);
     f = f * f * (3.0 - 2.0 * f);
     float a = h21(i), b = h21(i + float2(1.0, 0.0));
@@ -29,13 +24,13 @@ float vnoise(float2 p) {
     return mix(mix(a, b, f.x), mix(c2, d2, f.x), f.y);
 }
 
-float fbm2(float2 p) {
+inline float fbm2(float2 p) {
     return vnoise(p) * 0.6 + vnoise(p * 2.1 + 7.3) * 0.3 + vnoise(p * 4.3 + 13.1) * 0.1;
 }
 
-float lum3(float3 c) { return dot(c, float3(0.299, 0.587, 0.114)); }
+inline float lum3(float3 c) { return dot(c, float3(0.299, 0.587, 0.114)); }
 
-float3 hsvOut(float3 c) {
+inline float3 hsvOut(float3 c) {
     float3 q = abs(fract(c.xxx + float3(0.0, 2.0/3.0, 1.0/3.0)) * 6.0 - 3.0);
     return c.z * mix(float3(1.0), clamp(q - 1.0, 0.0, 1.0), c.y);
 }
@@ -69,7 +64,7 @@ float3 maskAt(float2 fc, float model, float maskDark) {
 }
 
 // Compute kernel
-kernel void FS_CRT(texture2d<float, access::sample> u_tex [[texture(0)]],
+kernel void bendrCRT(texture2d<float, access::sample> u_tex [[texture(0)]],
                    texture2d<float, access::sample> u_persist [[texture(1)]],
                    texture2d<float, access::write> outTex [[texture(2)]],
                    constant Constants& u [[buffer(0)]],
