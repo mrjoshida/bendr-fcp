@@ -39,4 +39,8 @@ enum BendrParamGroup {
     static let signalLabBase  = 8000
     static let meltBase       = 9000
     static let dirtyBase      = 9500
+    static let synthBase      = 10000
+    static let transitionBase = 11000
+    static let spatialBase    = 12000
+    static let opticsBase     = 13000
 }

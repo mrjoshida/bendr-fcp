@@ -26,6 +26,14 @@ FxPlug 4 plugin suite porting [BENDR](https://bendr.allmyfriendsaresynths.com)'s
 | **BENDR Flow** | Filter | Optical flow advection, datamosh, vector fields (Motion, Contour, Curl Noise, Spiral), and turbulence swirl |
 | **BENDR Signal Lab** | Filter | Glitch & signal synthesis: sparse jitter, FM carrier modulation, slitscan, PNG filter avalanche, NTSC crosstalk, and 1-bit Bayer dither |
 
+### Phase 4 — Synth, Transitions, Spatial & Optics
+| Plugin | Type | Description |
+|--------|------|-------------|
+| **BENDR Synth** | Generator / Filter | Video synthesizer: quadrature oscillators, wavefolder, cross-FM, comparators, and domain warping |
+| **BENDR Transition** | Transition / Filter | Circuit-bent mixer transitions: wipes, slide, stretch, keyer dissolve, and 24 blend modes |
+| **BENDR Spatial** | Filter | Multi-grid arrays, kaleidoscopic N-fold symmetries, camera shake, and time displacement mapping |
+| **BENDR Optics** | Filter | Lens chromatic aberration, film halation, optical bloom, light leaks, dirty glass, and retro camcorder HUD |
+
 ## Requirements
 
 - **macOS 13.0+** (Ventura or later)
@@ -61,6 +69,10 @@ open build/Release/BENDRMeltApp.app
 open build/Release/BENDRDirtyApp.app
 open build/Release/BENDRFlowApp.app
 open build/Release/BENDRSignalLabApp.app
+open build/Release/BENDRSynthApp.app
+open build/Release/BENDRTransitionApp.app
+open build/Release/BENDRSpatialApp.app
+open build/Release/BENDROpticsApp.app
 ```
 
 ## Creating Motion Templates

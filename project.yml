@@ -382,6 +382,146 @@ targets:
           - "$(SRCROOT)/Shared/Metal"
           - "$(inherited)"
 
+  # ============================================================
+  # PHASE 4: BENDR Synth
+  # ============================================================
+
+  BENDRSynthApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRSynthApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.synth
+        INFOPLIST_FILE: BENDRSynthApp/Info.plist
+    dependencies:
+      - target: BENDRSynthService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRSynthService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRSynthService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.synth.service
+        INFOPLIST_FILE: BENDRSynthService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRSynthService/BENDRSynthService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
+  # ============================================================
+  # PHASE 4: BENDR Transition
+  # ============================================================
+
+  BENDRTransitionApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRTransitionApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.transition
+        INFOPLIST_FILE: BENDRTransitionApp/Info.plist
+    dependencies:
+      - target: BENDRTransitionService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRTransitionService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRTransitionService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.transition.service
+        INFOPLIST_FILE: BENDRTransitionService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRTransitionService/BENDRTransitionService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
+  # ============================================================
+  # PHASE 4: BENDR Spatial
+  # ============================================================
+
+  BENDRSpatialApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRSpatialApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.spatial
+        INFOPLIST_FILE: BENDRSpatialApp/Info.plist
+    dependencies:
+      - target: BENDRSpatialService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRSpatialService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRSpatialService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.spatial.service
+        INFOPLIST_FILE: BENDRSpatialService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRSpatialService/BENDRSpatialService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
+  # ============================================================
+  # PHASE 4: BENDR Optics
+  # ============================================================
+
+  BENDROpticsApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDROpticsApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.optics
+        INFOPLIST_FILE: BENDROpticsApp/Info.plist
+    dependencies:
+      - target: BENDROpticsService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDROpticsService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDROpticsService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.optics.service
+        INFOPLIST_FILE: BENDROpticsService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDROpticsService/BENDROpticsService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
 schemes:
   BENDRVHSApp:
     build:
@@ -453,6 +593,34 @@ schemes:
     run:
       config: Debug
 
+  BENDRSynthApp:
+    build:
+      targets:
+        BENDRSynthApp: all
+    run:
+      config: Debug
+
+  BENDRTransitionApp:
+    build:
+      targets:
+        BENDRTransitionApp: all
+    run:
+      config: Debug
+
+  BENDRSpatialApp:
+    build:
+      targets:
+        BENDRSpatialApp: all
+    run:
+      config: Debug
+
+  BENDROpticsApp:
+    build:
+      targets:
+        BENDROpticsApp: all
+    run:
+      config: Debug
+
   AllPlugins:
     build:
       targets:
@@ -466,5 +634,9 @@ schemes:
         BENDRDirtyApp: all
         BENDRFlowApp: all
         BENDRSignalLabApp: all
+        BENDRSynthApp: all
+        BENDRTransitionApp: all
+        BENDRSpatialApp: all
+        BENDROpticsApp: all
     run:
       config: Debug
