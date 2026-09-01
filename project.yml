@@ -33,7 +33,7 @@ fileGroups:
 targets:
 
   # ============================================================
-  # BENDR VHS
+  # PHASE 1: BENDR VHS
   # ============================================================
 
   BENDRVHSApp:
@@ -45,7 +45,6 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.vhs
         INFOPLIST_FILE: BENDRVHSApp/Info.plist
-        CODE_SIGN_ENTITLEMENTS: ""
     dependencies:
       - target: BENDRVHSService
         embed: true
@@ -67,10 +66,9 @@ targets:
         MTL_HEADER_SEARCH_PATHS:
           - "$(SRCROOT)/Shared/Metal"
           - "$(inherited)"
-        MTLLINKER_FLAGS: ""
 
   # ============================================================
-  # BENDR CRT
+  # PHASE 1: BENDR CRT
   # ============================================================
 
   BENDRCRTApp:
@@ -105,7 +103,7 @@ targets:
           - "$(inherited)"
 
   # ============================================================
-  # BENDR Feedback
+  # PHASE 1: BENDR Feedback
   # ============================================================
 
   BENDRFeedbackApp:
@@ -139,6 +137,111 @@ targets:
           - "$(SRCROOT)/Shared/Metal"
           - "$(inherited)"
 
+  # ============================================================
+  # PHASE 2: BENDR Colour
+  # ============================================================
+
+  BENDRColourApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRColourApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.colour
+        INFOPLIST_FILE: BENDRColourApp/Info.plist
+    dependencies:
+      - target: BENDRColourService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRColourService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRColourService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.colour.service
+        INFOPLIST_FILE: BENDRColourService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRColourService/BENDRColourService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
+  # ============================================================
+  # PHASE 2: BENDR Scan
+  # ============================================================
+
+  BENDRScanApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRScanApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.scan
+        INFOPLIST_FILE: BENDRScanApp/Info.plist
+    dependencies:
+      - target: BENDRScanService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRScanService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRScanService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.scan.service
+        INFOPLIST_FILE: BENDRScanService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRScanService/BENDRScanService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
+  # ============================================================
+  # PHASE 2: BENDR Corrupt
+  # ============================================================
+
+  BENDRCorruptApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRCorruptApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.corrupt
+        INFOPLIST_FILE: BENDRCorruptApp/Info.plist
+    dependencies:
+      - target: BENDRCorruptService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRCorruptService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRCorruptService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.corrupt.service
+        INFOPLIST_FILE: BENDRCorruptService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRCorruptService/BENDRCorruptService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
 schemes:
   BENDRVHSApp:
     build:
@@ -161,11 +264,35 @@ schemes:
     run:
       config: Debug
 
+  BENDRColourApp:
+    build:
+      targets:
+        BENDRColourApp: all
+    run:
+      config: Debug
+
+  BENDRScanApp:
+    build:
+      targets:
+        BENDRScanApp: all
+    run:
+      config: Debug
+
+  BENDRCorruptApp:
+    build:
+      targets:
+        BENDRCorruptApp: all
+    run:
+      config: Debug
+
   AllPlugins:
     build:
       targets:
         BENDRVHSApp: all
         BENDRCRTApp: all
         BENDRFeedbackApp: all
+        BENDRColourApp: all
+        BENDRScanApp: all
+        BENDRCorruptApp: all
     run:
       config: Debug
