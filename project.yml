@@ -242,6 +242,146 @@ targets:
           - "$(SRCROOT)/Shared/Metal"
           - "$(inherited)"
 
+  # ============================================================
+  # PHASE 3: BENDR Melt
+  # ============================================================
+
+  BENDRMeltApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRMeltApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.melt
+        INFOPLIST_FILE: BENDRMeltApp/Info.plist
+    dependencies:
+      - target: BENDRMeltService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRMeltService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRMeltService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.melt.service
+        INFOPLIST_FILE: BENDRMeltService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRMeltService/BENDRMeltService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
+  # ============================================================
+  # PHASE 3: BENDR Dirty
+  # ============================================================
+
+  BENDRDirtyApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRDirtyApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.dirty
+        INFOPLIST_FILE: BENDRDirtyApp/Info.plist
+    dependencies:
+      - target: BENDRDirtyService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRDirtyService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRDirtyService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.dirty.service
+        INFOPLIST_FILE: BENDRDirtyService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRDirtyService/BENDRDirtyService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
+  # ============================================================
+  # PHASE 3: BENDR Flow
+  # ============================================================
+
+  BENDRFlowApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRFlowApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.flow
+        INFOPLIST_FILE: BENDRFlowApp/Info.plist
+    dependencies:
+      - target: BENDRFlowService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRFlowService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRFlowService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.flow.service
+        INFOPLIST_FILE: BENDRFlowService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRFlowService/BENDRFlowService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
+  # ============================================================
+  # PHASE 3: BENDR Signal Lab
+  # ============================================================
+
+  BENDRSignalLabApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRSignalLabApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.signallab
+        INFOPLIST_FILE: BENDRSignalLabApp/Info.plist
+    dependencies:
+      - target: BENDRSignalLabService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRSignalLabService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRSignalLabService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.signallab.service
+        INFOPLIST_FILE: BENDRSignalLabService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRSignalLabService/BENDRSignalLabService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
 schemes:
   BENDRVHSApp:
     build:
@@ -285,6 +425,34 @@ schemes:
     run:
       config: Debug
 
+  BENDRMeltApp:
+    build:
+      targets:
+        BENDRMeltApp: all
+    run:
+      config: Debug
+
+  BENDRDirtyApp:
+    build:
+      targets:
+        BENDRDirtyApp: all
+    run:
+      config: Debug
+
+  BENDRFlowApp:
+    build:
+      targets:
+        BENDRFlowApp: all
+    run:
+      config: Debug
+
+  BENDRSignalLabApp:
+    build:
+      targets:
+        BENDRSignalLabApp: all
+    run:
+      config: Debug
+
   AllPlugins:
     build:
       targets:
@@ -294,5 +462,9 @@ schemes:
         BENDRColourApp: all
         BENDRScanApp: all
         BENDRCorruptApp: all
+        BENDRMeltApp: all
+        BENDRDirtyApp: all
+        BENDRFlowApp: all
+        BENDRSignalLabApp: all
     run:
       config: Debug

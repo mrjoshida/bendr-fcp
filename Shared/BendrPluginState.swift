@@ -37,4 +37,6 @@ enum BendrParamGroup {
     static let corruptBase    = 6000
     static let flowBase       = 7000
     static let signalLabBase  = 8000
+    static let meltBase       = 9000
+    static let dirtyBase      = 9500
 }

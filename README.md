@@ -2,13 +2,29 @@
 
 FxPlug 4 plugin suite porting [BENDR](https://bendr.allmyfriendsaresynths.com)'s circuit-bent video processing to Final Cut Pro.
 
-## Plugins (Phase 1 — P0)
+## Plugins
 
+### Phase 1 — Core Foundations
 | Plugin | Type | Description |
 |--------|------|-------------|
 | **BENDR VHS** | Filter | VHS tape degradation, NTSC composite signal artifacts, sync corruption |
 | **BENDR CRT** | Filter | CRT monitor emulation: scanlines, shadow masks, barrel distortion, phosphor, overlays |
 | **BENDR Feedback** | Filter | Recursive video feedback tunnels with spatial/color transforms |
+
+### Phase 2 — Color & Scan Processing
+| Plugin | Type | Description |
+|--------|------|-------------|
+| **BENDR Colour** | Filter | Video-mixer color processing, bent enhancer isolines, differentiators, and function generators |
+| **BENDR Scan** | Filter | Cathode-ray deflection, 3D raster geometry, Lissajous and wobble modulation |
+| **BENDR Corrupt** | Filter | Pixel sorting, DCT block compression artifacts, halftone dotting, and drift glitching |
+
+### Phase 3 — Flow, Melt, Dirty & Signal Lab
+| Plugin | Type | Description |
+|--------|------|-------------|
+| **BENDR Melt** | Filter | Organic analog/digital hybrid feedback smear, edge melt, and motion-reactive melting |
+| **BENDR Dirty** | Filter | Hardware desk failure, crossbar switching faults, timebase knock, and transient noise |
+| **BENDR Flow** | Filter | Optical flow advection, datamosh, vector fields (Motion, Contour, Curl Noise, Spiral), and turbulence swirl |
+| **BENDR Signal Lab** | Filter | Glitch & signal synthesis: sparse jitter, FM carrier modulation, slitscan, PNG filter avalanche, NTSC crosstalk, and 1-bit Bayer dither |
 
 ## Requirements
 
@@ -38,6 +54,13 @@ xcodebuild -project BENDREffects.xcodeproj \
 open build/Release/BENDRVHSApp.app
 open build/Release/BENDRCRTApp.app
 open build/Release/BENDRFeedbackApp.app
+open build/Release/BENDRColourApp.app
+open build/Release/BENDRScanApp.app
+open build/Release/BENDRCorruptApp.app
+open build/Release/BENDRMeltApp.app
+open build/Release/BENDRDirtyApp.app
+open build/Release/BENDRFlowApp.app
+open build/Release/BENDRSignalLabApp.app
 ```
 
 ## Creating Motion Templates
