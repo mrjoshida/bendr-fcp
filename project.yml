@@ -1,0 +1,171 @@
+name: BENDREffects
+options:
+  bundleIdPrefix: com.bendr.fxplug
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+  defaultConfig: Release
+
+settings:
+  base:
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    SWIFT_VERSION: "5.9"
+    # FxPlug framework lives inside FCP.app
+    FRAMEWORK_SEARCH_PATHS:
+      - "/Applications/Final Cut Pro.app/Contents/Frameworks"
+      - "$(inherited)"
+    # Link against FxPlug
+    OTHER_LDFLAGS:
+      - "-framework"
+      - "FxPlug"
+      - "$(inherited)"
+    # Rpath so the XPC service can find FxPlug at runtime
+    LD_RUNPATH_SEARCH_PATHS:
+      - "/Applications/Final Cut Pro.app/Contents/Frameworks"
+      - "$(inherited)"
+
+# --- File groups ---
+fileGroups:
+  - Shared
+
+# --- Targets ---
+targets:
+
+  # ============================================================
+  # BENDR VHS
+  # ============================================================
+
+  BENDRVHSApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRVHSApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.vhs
+        INFOPLIST_FILE: BENDRVHSApp/Info.plist
+        CODE_SIGN_ENTITLEMENTS: ""
+    dependencies:
+      - target: BENDRVHSService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRVHSService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRVHSService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.vhs.service
+        INFOPLIST_FILE: BENDRVHSService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRVHSService/BENDRVHSService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+        MTLLINKER_FLAGS: ""
+
+  # ============================================================
+  # BENDR CRT
+  # ============================================================
+
+  BENDRCRTApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRCRTApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.crt
+        INFOPLIST_FILE: BENDRCRTApp/Info.plist
+    dependencies:
+      - target: BENDRCRTService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRCRTService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRCRTService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.crt.service
+        INFOPLIST_FILE: BENDRCRTService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRCRTService/BENDRCRTService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
+  # ============================================================
+  # BENDR Feedback
+  # ============================================================
+
+  BENDRFeedbackApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: BENDRFeedbackApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.feedback
+        INFOPLIST_FILE: BENDRFeedbackApp/Info.plist
+    dependencies:
+      - target: BENDRFeedbackService
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+
+  BENDRFeedbackService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: BENDRFeedbackService
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bendr.fxplug.feedback.service
+        INFOPLIST_FILE: BENDRFeedbackService/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BENDRFeedbackService/BENDRFeedbackService.entitlements
+        MTL_HEADER_SEARCH_PATHS:
+          - "$(SRCROOT)/Shared/Metal"
+          - "$(inherited)"
+
+schemes:
+  BENDRVHSApp:
+    build:
+      targets:
+        BENDRVHSApp: all
+    run:
+      config: Debug
+
+  BENDRCRTApp:
+    build:
+      targets:
+        BENDRCRTApp: all
+    run:
+      config: Debug
+
+  BENDRFeedbackApp:
+    build:
+      targets:
+        BENDRFeedbackApp: all
+    run:
+      config: Debug
+
+  AllPlugins:
+    build:
+      targets:
+        BENDRVHSApp: all
+        BENDRCRTApp: all
+        BENDRFeedbackApp: all
+    run:
+      config: Debug

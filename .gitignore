@@ -1,0 +1,49 @@
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Xcode & Swift Build Artifacts
+build/
+DerivedData/
+*.moved-builder
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.air
+*.metallib
+
+# Xcode User Data & Project State
+# (Since XcodeGen generates BENDREffects.xcodeproj from project.yml,
+# the entire .xcodeproj can be excluded or regenerated anytime)
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+*.xcscmblueprint
+*.xcuserstate
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+
+# App Bundles & Distribution Packages
+*.app
+*.xpc
+*.dmg
+*.pkg
+
+# Motion Templates working/temporary files
+*.motn~*
+*.moef~*
+*.motr~*
+*.moti~*
