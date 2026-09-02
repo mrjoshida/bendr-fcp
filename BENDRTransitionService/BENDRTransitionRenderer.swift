@@ -43,5 +43,9 @@ enum BENDRTransitionRenderer {
 
         commandBuffer.commit()
         commandBuffer.waitUntilCompleted()
+
+        if let err = commandBuffer.error {
+            throw BendrError.renderFailed(err.localizedDescription)
+        }
     }
 }

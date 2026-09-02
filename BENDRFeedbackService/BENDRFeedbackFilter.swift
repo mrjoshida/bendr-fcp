@@ -103,7 +103,7 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
         parmsApi.endParameterSubGroup()
     }
 
-    public func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws {
+    public func scheduleInputs(_ request: UnsafeMutablePointer<FxScheduleInputsRequest>, with pluginState: Data?, at time: CMTime) throws {
         guard let pluginState = pluginState,
               let params = try? FeedbackParams.decode(from: pluginState) else {
             request.addInput(0, with: time)
@@ -118,9 +118,9 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
             request.addInput(0, with: histTime)
         }
     }
-    public func pluginState(at renderTime: CMTime, quality qualityLevel: UInt) throws -> Data {
+    public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData>?, at renderTime: CMTime, quality qualityLevel: UInt) throws {
         guard let parmsApi = apiManager.api(for: FxParameterRetrievalAPI_v6.self) as? FxParameterRetrievalAPI_v6 else {
-            return Data()
+            return
         }
 
         var p = FeedbackParams()
@@ -152,7 +152,7 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
         var bVal = ObjCBool(false)
         if parmsApi.getIntValue(&iVal, fromParameter: FeedbackParamID.fbWrap.rawValue, at: renderTime) { p.fbWrap = Float(iVal) }
         if parmsApi.getIntValue(&iVal, fromParameter: FeedbackParamID.fbMirror.rawValue, at: renderTime) { p.fbMirror = Float(iVal) }
-        if parmsApi.getIntValue(&iVal, fromParameter: FeedbackParamID.fbFlip.rawValue, at: renderTime) { p.flipMode = Float(iVal) }
+        if parmsApi.getIntValue(&iVal, fromParameter: FeedbackParamID.fbFlip.rawValue, at: renderTime) { p.fbFlip = Float(iVal) }
         if parmsApi.getIntValue(&iVal, fromParameter: FeedbackParamID.fbBlend.rawValue, at: renderTime) { p.fbBlend = Float(iVal) }
 
         if parmsApi.getFloatValue(&fVal, fromParameter: FeedbackParamID.fbGainR.rawValue, at: renderTime) { p.fbGainR = Float(fVal) }
@@ -195,16 +195,15 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
             p.shakeY = cos(phase * 11.3) * sin(phase * 5.7) * shake * 0.1
         }
 
-        return try p.encode()
+        pluginState?.pointee = try p.encode() as NSData
     }
 
-    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImageRects: [NSValue], pluginState: Data?, at renderTime: CMTime) throws {
-        guard let sourceRect = sourceImageRects.first?.rectValue else { return }
-        destinationImageRect.pointee = sourceRect
+    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImage], destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {
+        destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: Int32(destinationImage.width), top: Int32(destinationImage.height))
     }
 
-    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImageRect: FxRect, destinationTileRect: FxRect, destinationImageRect: FxRect, pluginState: Data?, at renderTime: CMTime) throws {
-        sourceTileRect.pointee = sourceImageRect
+    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImage], destinationTileRect: FxRect, destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {
+        sourceTileRect.pointee = destinationTileRect
     }
 
     public func renderDestinationImage(_ destinationImage: FxImageTile, sourceImages: [FxImageTile], pluginState: Data?, at renderTime: CMTime) throws {

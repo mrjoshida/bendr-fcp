@@ -73,8 +73,7 @@ public class BENDRCRTFilter: NSObject, FxTileableEffect {
         parmsApi.endParameterSubGroup()
     }
 
-    public func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws {
-        // Current frame
+    public func scheduleInputs(_ request: UnsafeMutablePointer<FxScheduleInputsRequest>, with pluginState: Data?, at time: CMTime) throws {
         request.addInput(0, with: time)
 
         // Previous frame for phosphor decay / interlace
@@ -83,9 +82,9 @@ public class BENDRCRTFilter: NSObject, FxTileableEffect {
         request.addInput(0, with: prevTime)
     }
 
-    public func pluginState(at renderTime: CMTime, quality qualityLevel: UInt) throws -> Data {
+    public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData>?, at renderTime: CMTime, quality qualityLevel: UInt) throws {
         guard let parmsApi = apiManager.api(for: FxParameterRetrievalAPI_v6.self) as? FxParameterRetrievalAPI_v6 else {
-            return Data()
+            return
         }
 
         var p = CRTParams()
@@ -119,16 +118,15 @@ public class BENDRCRTFilter: NSObject, FxTileableEffect {
         if parmsApi.getFloatValue(&fVal, fromParameter: CRTParamID.osdShow.rawValue, at: renderTime) { p.osdShow = Float(fVal) }
 
         p.time = Float(CMTimeGetSeconds(renderTime))
-        return try p.encode()
+        pluginState?.pointee = try p.encode() as NSData
     }
 
-    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImageRects: [NSValue], pluginState: Data?, at renderTime: CMTime) throws {
-        guard let sourceRect = sourceImageRects.first?.rectValue else { return }
-        destinationImageRect.pointee = sourceRect
+    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImage], destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {
+        destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: Int32(destinationImage.width), top: Int32(destinationImage.height))
     }
 
-    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImageRect: FxRect, destinationTileRect: FxRect, destinationImageRect: FxRect, pluginState: Data?, at renderTime: CMTime) throws {
-        sourceTileRect.pointee = sourceImageRect
+    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImage], destinationTileRect: FxRect, destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {
+        sourceTileRect.pointee = destinationTileRect
     }
 
     public func renderDestinationImage(_ destinationImage: FxImageTile, sourceImages: [FxImageTile], pluginState: Data?, at renderTime: CMTime) throws {

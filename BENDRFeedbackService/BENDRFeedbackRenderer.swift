@@ -14,9 +14,18 @@ enum BENDRFeedbackRenderer {
             throw BendrError.textureCreationFailed
         }
 
-        // Use the oldest available history frame or fallback to source
-        let histTile = history.last ?? current
-        let histTexture = histTile.metalTexture(for: context.device) ?? srcTexture
+        // Prepare 16 historical frame textures (fallback to srcTexture if unavailable)
+        var histTextures: [MTLTexture] = []
+        for i in 0..<16 {
+            if i < history.count, let tex = history[i].metalTexture(for: context.device) {
+                histTextures.append(tex)
+            } else {
+                histTextures.append(srcTexture)
+            }
+        }
+
+        let delayTile = history.first ?? current
+        let delayTexture = delayTile.metalTexture(for: context.device) ?? srcTexture
 
         guard let library = try? context.device.makeDefaultLibrary(bundle: Bundle(for: BENDRFeedbackFilter.self)) ?? context.device.makeDefaultLibrary() else {
             throw BendrError.shaderNotFound("Default library for BENDRFeedback")
@@ -29,15 +38,21 @@ enum BENDRFeedbackRenderer {
             throw BendrError.commandBufferFailed
         }
 
+        if let sampler = BendrRender.makeSampler(device: context.device) {
+            encoder.setSamplerState(sampler, index: 0)
+        }
+
         encoder.setComputePipelineState(pipeline)
         encoder.setTexture(srcTexture, index: 0)
-        encoder.setTexture(histTexture, index: 1)
-        encoder.setTexture(dstTexture, index: 2)
+        encoder.setTextures(histTextures, range: 1..<17)
+        encoder.setTexture(delayTexture, index: 17)
+        encoder.setTexture(dstTexture, index: 18)
 
         var mutableParams = params
         mutableParams.srcAspect = Float(dstTexture.width) / Float(dstTexture.height)
         mutableParams.hasSrc = 1.0
         mutableParams.hasDelay = history.isEmpty ? 0.0 : 1.0
+        mutableParams.generationCount = UInt32(min(history.count, 16))
         encoder.setBytes(&mutableParams, length: MemoryLayout<FeedbackParams>.stride, index: 0)
 
         BendrRender.dispatch(encoder: encoder, pipeline: pipeline, width: dstTexture.width, height: dstTexture.height)
@@ -45,6 +60,10 @@ enum BENDRFeedbackRenderer {
 
         commandBuffer.commit()
         commandBuffer.waitUntilCompleted()
+
+        if let err = commandBuffer.error {
+            throw BendrError.renderFailed(err.localizedDescription)
+        }
     }
 }
 

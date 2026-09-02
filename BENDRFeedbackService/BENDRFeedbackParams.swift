@@ -65,6 +65,8 @@ struct FeedbackParams: BendrParams {
     var fbNL: Float = 0.0
     var fbInvert: Float = 0.0
     var autoGain: Float = 0.0
+    var fbFlip: Float = 0.0
+    var generationCount: UInt32 = 0
 }
 
 enum FeedbackParamID: UInt32 {
