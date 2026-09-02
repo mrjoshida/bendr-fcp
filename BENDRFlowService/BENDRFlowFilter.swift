@@ -136,14 +136,7 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
     }
 
     public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImage], destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {
-        let bounds = destinationImage.bounds
-        if bounds.right > bounds.left && bounds.top > bounds.bottom {
-            destinationImageRect.pointee = bounds
-        } else {
-            let w = Int32(destinationImage.width)
-            let h = Int32(destinationImage.height)
-            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: w > 0 ? w : 1920, top: h > 0 ? h : 1080)
-        }
+        destinationImageRect.pointee = FxRect(left: -100000, bottom: -100000, right: 100000, top: 100000)
     }
 
     public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImage], destinationTileRect: FxRect, destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {
