@@ -122,7 +122,13 @@ public class BENDRCRTFilter: NSObject, FxTileableEffect {
     }
 
     public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImage], destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {
-        destinationImageRect.pointee = FxRect(left: -100000, bottom: -100000, right: 100000, top: 100000)
+        if let src = sourceImages.first, src.responds(to: #selector(getter: FxImage.width)), src.responds(to: #selector(getter: FxImage.height)) {
+            let w = Int32(src.width)
+            let h = Int32(src.height)
+            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: w > 0 ? w : 1920, top: h > 0 ? h : 1080)
+        } else {
+            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: 1920, top: 1080)
+        }
     }
 
     public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImage], destinationTileRect: FxRect, destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {

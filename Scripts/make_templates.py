@@ -228,7 +228,7 @@ def generate_moef_xml(plugin_name, plugin_uuid, plugin_desc):
 				<parameter name="Width" id="313" flags="8589934610" default="1" value="1920"/>
 				<parameter name="Height" id="314" flags="8589934610" default="1" value="1080"/>
 			</parameter>
-			<filter name="{plugin_name}" id="10010" factoryID="7" pluginUUID="{plugin_uuid}" pluginVersion="1.0" pluginName="{plugin_name}" pluginDynamicParams="0">
+			<filter name="{plugin_name}" id="10010" factoryID="7" pluginUUID="{plugin_uuid}" pluginVersion="1.0" pluginName="{plugin_name}" pluginDynamicParams="1">
 				<timing in="0 1 1 0" out="1197196 120000 1 0" offset="0 1 1 0"/>
 				<baseFlags>8589934608</baseFlags>
 				<parameter name="Mix" id="10001" flags="12901679104" default="1" value="1"/>
