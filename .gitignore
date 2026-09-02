@@ -47,3 +47,6 @@ Packages/
 *.moef~*
 *.motr~*
 *.moti~*
+
+# Others
+Tests/
