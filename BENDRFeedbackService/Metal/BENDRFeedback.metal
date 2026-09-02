@@ -232,9 +232,7 @@ kernel void bendrFeedback(
     if (gid.x >= outTex.get_width() || gid.y >= outTex.get_height()) return;
     
     float2 res = float2(outTex.get_width(), outTex.get_height());
-    float2 uv = float2(gid) / res;
-    // MSL textures have origin at top-left, GLSL has bottom-left. We flip Y for uv to match GLSL math.
-    uv.y = 1.0 - uv.y;
+    float2 uv = (float2(gid) + 0.5) / res;
     float outA = res.x / res.y;
     
     float2 kuv = uv;
@@ -290,8 +288,7 @@ kernel void bendrFeedback(
     }
     
     if (params.hasDelay > 0.5) {
-        // MSL Y-flip for delayTex sample
-        float2 dUV = float2(uv.x, 1.0 - uv.y);
+        float2 dUV = uv;
         col = mix(col, delayTex.sample(s, dUV).rgb, params.echo);
     }
     

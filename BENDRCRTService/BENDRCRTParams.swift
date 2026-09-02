@@ -25,7 +25,7 @@ struct CRTParams: BendrParams {
     var grain: Float = 0.0
     
     var outGamma: Float = 1.0
-    var outBright: Float = 1.0
+    var outBright: Float = 0.0
     var outContrast: Float = 1.0
     var outSat: Float = 1.0
     var outWarmth: Float = 0.0

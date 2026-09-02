@@ -76,8 +76,7 @@ kernel void bendrVHS(
     constexpr sampler point_s(coord::pixel, address::clamp_to_edge, filter::nearest);
 
     float2 u_res = float2(outTex.get_width(), outTex.get_height());
-    float2 uv = float2(gid) / u_res;
-    uv.y = 1.0 - uv.y; // flipped Y if needed, assuming standard fcp UVs
+    float2 uv = (float2(gid) + 0.5) / u_res;
 
     float t = u.time;
     float row = uv.y * u.rows;

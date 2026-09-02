@@ -170,6 +170,8 @@ for (kernelName, category) in kernelNames {
             for i in 0..<30 {
                 floatPtr[i] = 0.2
             }
+            floatPtr[0] = 1.777 // srcAspect
+            floatPtr[1] = 1.0   // hasSrc
         }
         
         encoder.setBytes(&dummyBuffer, length: dummyBuffer.count, index: 0)
