@@ -41,7 +41,7 @@ kernel void bendrDirty(
     float dirtSeed = tk;
 
     float fire = step(h21(float2(tk, 7.71)), clamp(p.mixDirt, 0.0, 1.0) * 0.85);
-    float dirtE = fire * exp(-fr * mix(11.0, 1.6, p.mixDirt));
+    float dirtE = max(p.mixDirt * 0.35, fire * exp(-fr * mix(11.0, 1.6, p.mixDirt)));
 
     // Timebase Knock
     float2 duv = uv;
