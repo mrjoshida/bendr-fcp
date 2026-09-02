@@ -28,8 +28,9 @@ final class BendrMetalContext {
             return cached
         }
 
-        // Find the MTLDevice matching this registry ID
-        guard let device = MTLCopyAllDevices().first(where: { $0.registryID == registryID }),
+        // Find the MTLDevice matching this registry ID, or fallback to default device
+        let allDevices = MTLCopyAllDevices()
+        guard let device = (registryID != 0 ? allDevices.first(where: { $0.registryID == registryID }) : nil) ?? MTLCreateSystemDefaultDevice() ?? allDevices.first,
               let queue = device.makeCommandQueue()
         else {
             return nil
