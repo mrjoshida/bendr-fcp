@@ -7,7 +7,8 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
 
     private let apiManager: PROAPIAccessing
 
-    @objc public required init(apiManager: PROAPIAccessing) {
+    @objc(initWithAPIManager:)
+    public required init(apiManager: PROAPIAccessing) {
         self.apiManager = apiManager
         super.init()
     }
@@ -26,7 +27,7 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Source Framing
-        parmsApi.startParameterGroup("Source Framing", parameterID: FeedbackParamID.groupSource.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Source Framing", parameterID: FeedbackParamID.groupSource.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Zoom", parameterID: FeedbackParamID.srcZoom.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Pos X", parameterID: FeedbackParamID.srcX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Pos Y", parameterID: FeedbackParamID.srcY.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -40,10 +41,10 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Fold Spin", parameterID: FeedbackParamID.kaleidoRot.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Fold Ctr X", parameterID: FeedbackParamID.kaleidoX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Fold Ctr Y", parameterID: FeedbackParamID.kaleidoY.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 2: Feedback Core
-        parmsApi.startParameterGroup("Feedback Core", parameterID: FeedbackParamID.groupCore.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Feedback Core", parameterID: FeedbackParamID.groupCore.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Amount", parameterID: FeedbackParamID.fbAmount.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 0.99, sliderMin: 0.0, sliderMax: 0.97, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Zoom", parameterID: FeedbackParamID.fbZoom.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Rotate", parameterID: FeedbackParamID.fbRotate.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -56,10 +57,10 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
         parmsApi.addPopupMenu(withName: "Mirror", parameterID: FeedbackParamID.fbMirror.rawValue, defaultValue: 0, menuEntries: ["Off", "Horizontal", "Vertical", "Both"], parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Flip", parameterID: FeedbackParamID.fbFlip.rawValue, defaultValue: 0, menuEntries: ["Off", "Horizontal", "Vertical", "Both"], parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Blend", parameterID: FeedbackParamID.fbBlend.rawValue, defaultValue: 0, menuEntries: ["Mix", "Add", "Screen", "Max", "Min", "Difference"], parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 3: Feedback Color
-        parmsApi.startParameterGroup("Feedback Color", parameterID: FeedbackParamID.groupColor.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Feedback Color", parameterID: FeedbackParamID.groupColor.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Gain R", parameterID: FeedbackParamID.fbGainR.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 1.5, sliderMin: 0.0, sliderMax: 1.5, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Gain G", parameterID: FeedbackParamID.fbGainG.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 1.5, sliderMin: 0.0, sliderMax: 1.5, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Gain B", parameterID: FeedbackParamID.fbGainB.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 1.5, sliderMin: 0.0, sliderMax: 1.5, delta: 0.01, parameterFlags: 0)
@@ -69,10 +70,10 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Chroma Off", parameterID: FeedbackParamID.fbChromOff.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addToggleButton(withName: "Invert", parameterID: FeedbackParamID.fbInvert.rawValue, defaultValue: false, parameterFlags: 0)
         parmsApi.addToggleButton(withName: "Auto Level", parameterID: FeedbackParamID.fbAuto.rawValue, defaultValue: false, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 4: Feedback Dynamics
-        parmsApi.startParameterGroup("Feedback Dynamics", parameterID: FeedbackParamID.groupDynamics.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Feedback Dynamics", parameterID: FeedbackParamID.groupDynamics.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Blur", parameterID: FeedbackParamID.fbBlur.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Blur 2 (DoG)", parameterID: FeedbackParamID.fbBlur2.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Sharpen", parameterID: FeedbackParamID.fbSharp.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 2.0, sliderMin: 0.0, sliderMax: 2.0, delta: 0.01, parameterFlags: 0)
@@ -81,25 +82,25 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Threshold", parameterID: FeedbackParamID.fbThresh.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Thresh Soft", parameterID: FeedbackParamID.fbThreshSoft.rawValue, defaultValue: 0.05, parameterMin: 0.005, parameterMax: 0.5, sliderMin: 0.005, sliderMax: 0.5, delta: 0.01, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Curve", parameterID: FeedbackParamID.fbNL.rawValue, defaultValue: 0, menuEntries: ["Clamp", "Tanh", "Wrap", "Fold"], parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 5: Feedback Noise
-        parmsApi.startParameterGroup("Feedback Noise", parameterID: FeedbackParamID.groupNoise.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Feedback Noise", parameterID: FeedbackParamID.groupNoise.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Loop Noise", parameterID: FeedbackParamID.fbNoise.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Noise Scale", parameterID: FeedbackParamID.fbNoiseScale.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "V Roll / Pass", parameterID: FeedbackParamID.fbRoll.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Sync Jitter", parameterID: FeedbackParamID.fbJitter.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 6: Time Base
-        parmsApi.startParameterGroup("Time Base", parameterID: FeedbackParamID.groupTime.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Time Base", parameterID: FeedbackParamID.groupTime.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Echo", parameterID: FeedbackParamID.echo.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Delay Frm", parameterID: FeedbackParamID.delayFrames.rawValue, defaultValue: 3.0, parameterMin: 1.0, parameterMax: 29.0, sliderMin: 1.0, sliderMax: 29.0, delta: 1.0, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Stutter", parameterID: FeedbackParamID.stutter.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Strobe", parameterID: FeedbackParamID.strobe.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Shake", parameterID: FeedbackParamID.shake.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Shake Rate", parameterID: FeedbackParamID.shakeRate.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws {

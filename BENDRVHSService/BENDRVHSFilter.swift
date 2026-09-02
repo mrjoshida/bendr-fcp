@@ -9,7 +9,8 @@ public class BENDRVHSFilter: NSObject, FxTileableEffect {
 
     private let apiManager: PROAPIAccessing
 
-    @objc public required init(apiManager: PROAPIAccessing) {
+    @objc(initWithAPIManager:)
+    public required init(apiManager: PROAPIAccessing) {
         self.apiManager = apiManager
         super.init()
     }
@@ -28,7 +29,7 @@ public class BENDRVHSFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Tape & Transport
-        parmsApi.startParameterGroup("Tape & Transport", parameterID: VHSParamID.groupTape.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Tape & Transport", parameterID: VHSParamID.groupTape.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Tape Speed", parameterID: VHSParamID.tapeSpeed.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Tracking Error", parameterID: VHSParamID.tracking.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Tracking Phase", parameterID: VHSParamID.trackPhase.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -47,10 +48,10 @@ public class BENDRVHSFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Azimuth Error", parameterID: VHSParamID.azimuth.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Gen Loss", parameterID: VHSParamID.genLoss.rawValue, defaultValue: 0.1, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Gen Count", parameterID: VHSParamID.genCount.rawValue, defaultValue: 1.0, parameterMin: 1.0, parameterMax: 10.0, sliderMin: 1.0, sliderMax: 10.0, delta: 1.0, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 2: RF & Signal Noise
-        parmsApi.startParameterGroup("RF & Signal Noise", parameterID: VHSParamID.groupRF.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("RF & Signal Noise", parameterID: VHSParamID.groupRF.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Chroma Bleed", parameterID: VHSParamID.chromaBleed.rawValue, defaultValue: 0.25, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Chroma Delay", parameterID: VHSParamID.chromaDelay.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Luma Bleed", parameterID: VHSParamID.lumaBleed.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -64,10 +65,10 @@ public class BENDRVHSFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Chroma Loss", parameterID: VHSParamID.chromaLoss.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Print-Through", parameterID: VHSParamID.printThru.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Tape Hiss", parameterID: VHSParamID.hiss.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 3: Sync & Timebase
-        parmsApi.startParameterGroup("Sync & Timebase", parameterID: VHSParamID.groupSync.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Sync & Timebase", parameterID: VHSParamID.groupSync.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "H-Wobble", parameterID: VHSParamID.hWobble.rawValue, defaultValue: 0.05, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Wobble Freq", parameterID: VHSParamID.wobbleFreq.rawValue, defaultValue: 0.2, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Sync Tear", parameterID: VHSParamID.tear.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -75,7 +76,7 @@ public class BENDRVHSFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "V-Roll", parameterID: VHSParamID.vRoll.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Sync Jitter", parameterID: VHSParamID.jitter.rawValue, defaultValue: 0.1, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Hum Bar", parameterID: VHSParamID.humBar.rawValue, defaultValue: 0.1, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws {

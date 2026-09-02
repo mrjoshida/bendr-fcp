@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>BENDR Feedback</string>
 	<key>CFBundleExecutable</key>
@@ -20,36 +20,56 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>PlugInKit</key>
+	<dict>
+		<key>Attributes</key>
+		<dict>
+			<key>com.apple.protocol</key>
+			<string>FxPlug</string>
+			<key>com.apple.version</key>
+			<string>1.1</string>
+		</dict>
+		<key>PrincipalClass</key>
+		<string>FxPrincipal</string>
+		<key>Protocol</key>
+		<string>PROXPCProtocol</string>
+		<key>Subsystems</key>
+		<array>
+			<string>NSViewService_PKSubsystem</string>
+		</array>
+	</dict>
 	<key>ProPlugDictionaryVersion</key>
 	<string>1.0</string>
 	<key>ProPlugDynamicRegistration</key>
-	<true/>
+	<false/>
 	<key>ProPlugPlugInGroupList</key>
 	<array>
 		<dict>
-			<key>uuid</key>
-			<string>BENDRFeedback</string>
 			<key>groupName</key>
 			<string>BENDR</string>
+			<key>uuid</key>
+			<string>B4C2D1E0-4567-4890-ABCD-EF0123456789</string>
 		</dict>
 	</array>
 	<key>ProPlugPlugInList</key>
 	<array>
 		<dict>
-			<key>uuid</key>
-			<string>BENDRFeedbackFilter</string>
 			<key>className</key>
 			<string>BENDRFeedbackFilter</string>
 			<key>displayName</key>
 			<string>BENDR Feedback</string>
 			<key>group</key>
-			<string>BENDR</string>
-			<key>version</key>
-			<string>1.0</string>
+			<string>B4C2D1E0-4567-4890-ABCD-EF0123456789</string>
+			<key>infoString</key>
+			<string>Recursive video feedback tunnels</string>
 			<key>protocolNames</key>
 			<array>
-				<string>FxTileableEffect</string>
+				<string>FxFilter</string>
 			</array>
+			<key>uuid</key>
+			<string>B4C2D1E0-4567-4890-ABCD-EF0123456782</string>
+			<key>version</key>
+			<string>1.0</string>
 		</dict>
 	</array>
 	<key>XPCService</key>
@@ -57,9 +77,14 @@
 		<key>JoinExistingSession</key>
 		<true/>
 		<key>RunLoopType</key>
-		<string>NSRunLoop</string>
+		<string>_NSApplicationMain</string>
 		<key>ServiceType</key>
 		<string>Application</string>
+		<key>_AdditionalSubServices</key>
+		<dict>
+			<key>viewbridge</key>
+			<true/>
+		</dict>
 	</dict>
 </dict>
 </plist>

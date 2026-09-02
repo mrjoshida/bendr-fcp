@@ -9,7 +9,8 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
 
     private let apiManager: PROAPIAccessing
 
-    @objc public required init(apiManager: PROAPIAccessing) {
+    @objc(initWithAPIManager:)
+    public required init(apiManager: PROAPIAccessing) {
         self.apiManager = apiManager
         super.init()
     }
@@ -28,7 +29,7 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Vector Field & Advection
-        parmsApi.startParameterGroup("Vector Field & Advection", parameterID: FlowParamID.groupField.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Vector Field & Advection", parameterID: FlowParamID.groupField.rawValue, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Vector Field", parameterID: FlowParamID.flowField.rawValue, defaultValue: 0, menuEntries: [
             "Motion (Optical Flow)",
             "Contour Gradient",
@@ -46,10 +47,10 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
             "Wrap / Repeat",
             "Mirror"
         ], parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 2: Mosh & Persistence
-        parmsApi.startParameterGroup("Mosh & Persistence", parameterID: FlowParamID.groupPersistence.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Mosh & Persistence", parameterID: FlowParamID.groupPersistence.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Mosh Hold", parameterID: FlowParamID.mosh.rawValue, defaultValue: 0.7, parameterMin: 0.0, parameterMax: 0.99, sliderMin: 0.0, sliderMax: 0.99, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Mosh Gate", parameterID: FlowParamID.moshGate.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Time Shear", parameterID: FlowParamID.timeGrad.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -57,20 +58,20 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
             "Vertical",
             "Horizontal"
         ], parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 3: Melt & Swirl Dynamics
-        parmsApi.startParameterGroup("Melt & Swirl Dynamics", parameterID: FlowParamID.groupDynamics.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Melt & Swirl Dynamics", parameterID: FlowParamID.groupDynamics.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Gravity Melt", parameterID: FlowParamID.melt.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Melt Angle", parameterID: FlowParamID.meltDir.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Melt Gate", parameterID: FlowParamID.meltGate.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Swirl Turbulence", parameterID: FlowParamID.swirl.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Swirl Scale", parameterID: FlowParamID.swirlScale.rawValue, defaultValue: 0.18, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Swirl Speed", parameterID: FlowParamID.swirlSpeed.rawValue, defaultValue: 0.08, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 4: Glitch & Texture
-        parmsApi.startParameterGroup("Glitch & Texture", parameterID: FlowParamID.groupGlitch.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Glitch & Texture", parameterID: FlowParamID.groupGlitch.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Vector Trash", parameterID: FlowParamID.moshBlock.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Trash Block Size", parameterID: FlowParamID.moshBlockSize.rawValue, defaultValue: 0.68, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Trash Rate", parameterID: FlowParamID.moshRate.rawValue, defaultValue: 0.13, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -80,7 +81,7 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Re-Sharpen", parameterID: FlowParamID.flowSharp.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Hue Shift / Pass", parameterID: FlowParamID.flowHue.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Decay / Pass", parameterID: FlowParamID.flowFade.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws {

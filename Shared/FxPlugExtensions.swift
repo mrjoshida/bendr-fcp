@@ -4,14 +4,17 @@ import Foundation
 import FxPlug
 import CoreMedia
 
-public protocol FxTileableEffect: NSObjectProtocol {
+@objc public protocol FxTileableEffect: NSObjectProtocol {
+    @objc(initWithAPIManager:)
     init(apiManager: PROAPIAccessing)
+    
+    @objc(properties:error:)
     func properties(_ properties: AutoreleasingUnsafeMutablePointer<NSDictionary>?) throws
+    
+    @objc(addParametersWithError:)
     func addParameters() throws
-    func pluginState(at renderTime: CMTime, quality qualityLevel: UInt) throws -> Data
-    func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws
-    func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImageRects: [NSValue], pluginState: Data?, at renderTime: CMTime) throws
-    func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImageRect: FxRect, destinationTileRect: FxRect, destinationImageRect: FxRect, pluginState: Data?, at renderTime: CMTime) throws
+    
+    @objc(renderDestinationImage:sourceImages:pluginState:atTime:error:)
     func renderDestinationImage(_ destinationImage: FxImageTile, sourceImages: [FxImageTile], pluginState: Data?, at renderTime: CMTime) throws
 }
 

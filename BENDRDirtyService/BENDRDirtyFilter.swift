@@ -9,7 +9,8 @@ public class BENDRDirtyFilter: NSObject, FxTileableEffect {
 
     private let apiManager: PROAPIAccessing
 
-    @objc public required init(apiManager: PROAPIAccessing) {
+    @objc(initWithAPIManager:)
+    public required init(apiManager: PROAPIAccessing) {
         self.apiManager = apiManager
         super.init()
     }
@@ -28,18 +29,18 @@ public class BENDRDirtyFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Fault Engine
-        parmsApi.startParameterGroup("Fault Engine", parameterID: DirtyParamID.groupEngine.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Fault Engine", parameterID: DirtyParamID.groupEngine.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Dirt Amount", parameterID: DirtyParamID.mixDirt.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Clock Rate", parameterID: DirtyParamID.mixDirtRate.rawValue, defaultValue: 0.3, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 2: Fault Manifestation
-        parmsApi.startParameterGroup("Fault Manifestation", parameterID: DirtyParamID.groupManifestation.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Fault Manifestation", parameterID: DirtyParamID.groupManifestation.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Timebase Knock", parameterID: DirtyParamID.mixDirtKnock.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Line Dropouts", parameterID: DirtyParamID.mixDirtDrop.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Cut / Flash", parameterID: DirtyParamID.mixDirtCut.rawValue, defaultValue: 0.4, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Transient Noise", parameterID: DirtyParamID.mixDirtNoise.rawValue, defaultValue: 0.35, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws {

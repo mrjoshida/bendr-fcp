@@ -9,7 +9,8 @@ public class BENDRSynthFilter: NSObject, FxTileableEffect {
 
     private let apiManager: PROAPIAccessing
 
-    @objc public required init(apiManager: PROAPIAccessing) {
+    @objc(initWithAPIManager:)
+    public required init(apiManager: PROAPIAccessing) {
         self.apiManager = apiManager
         super.init()
     }
@@ -28,7 +29,7 @@ public class BENDRSynthFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Geometry & Oscillators
-        parmsApi.startParameterGroup("Geometry & Oscillators", parameterID: SynthParamID.groupGeometry.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Geometry & Oscillators", parameterID: SynthParamID.groupGeometry.rawValue, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Pattern Shape", parameterID: SynthParamID.shape.rawValue, defaultValue: 0, menuEntries: [
             "Scan (Dual Ramp)",
             "Radial",
@@ -61,10 +62,10 @@ public class BENDRSynthFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Center Y", parameterID: SynthParamID.genCY.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Zoom / Scale", parameterID: SynthParamID.genZoom.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addIntSlider(withName: "Symmetry Folds", parameterID: SynthParamID.genFoldN.rawValue, defaultValue: 4, parameterMin: 1, parameterMax: 16, sliderMin: 1, sliderMax: 16, delta: 1, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 2: Synthesis & Modulation
-        parmsApi.startParameterGroup("Synthesis & Modulation", parameterID: SynthParamID.groupModulation.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Synthesis & Modulation", parameterID: SynthParamID.groupModulation.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Cross-FM Depth", parameterID: SynthParamID.genFM.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Wavefolder", parameterID: SynthParamID.genFold.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Pulse Width", parameterID: SynthParamID.genPulse.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -72,10 +73,10 @@ public class BENDRSynthFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Comparator Thresh", parameterID: SynthParamID.genThresh.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Comparator Soft", parameterID: SynthParamID.genSoft.rawValue, defaultValue: 0.12, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Domain Warp", parameterID: SynthParamID.genWarp.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 3: Color & Output
-        parmsApi.startParameterGroup("Color & Output", parameterID: SynthParamID.groupColor.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Color & Output", parameterID: SynthParamID.groupColor.rawValue, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Color Mode", parameterID: SynthParamID.colmode.rawValue, defaultValue: 2, menuEntries: [
             "Monochrome",
             "RGB Phase Shift",
@@ -89,7 +90,7 @@ public class BENDRSynthFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Brightness", parameterID: SynthParamID.genBright.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 1.5, sliderMin: 0.0, sliderMax: 1.5, delta: 0.01, parameterFlags: 0)
         parmsApi.addIntSlider(withName: "Color Bands", parameterID: SynthParamID.genBands.rawValue, defaultValue: 6, parameterMin: 2, parameterMax: 16, sliderMin: 2, sliderMax: 16, delta: 1, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Overlay Source", parameterID: SynthParamID.blendWithSource.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws {

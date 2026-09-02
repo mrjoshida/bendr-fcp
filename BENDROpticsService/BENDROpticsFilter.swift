@@ -9,7 +9,8 @@ public class BENDROpticsFilter: NSObject, FxTileableEffect {
 
     private let apiManager: PROAPIAccessing
 
-    @objc public required init(apiManager: PROAPIAccessing) {
+    @objc(initWithAPIManager:)
+    public required init(apiManager: PROAPIAccessing) {
         self.apiManager = apiManager
         super.init()
     }
@@ -28,7 +29,7 @@ public class BENDROpticsFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Lens & Optics
-        parmsApi.startParameterGroup("Lens & Optics", parameterID: OpticsParamID.groupLens.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Lens & Optics", parameterID: OpticsParamID.groupLens.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Chromatic Aberration", parameterID: OpticsParamID.lensCA.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Anamorphic Streak", parameterID: OpticsParamID.lensStreak.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Streak Coating Tint", parameterID: OpticsParamID.streakHue.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -36,10 +37,10 @@ public class BENDROpticsFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Bloom Radius", parameterID: OpticsParamID.bloomRad.rawValue, defaultValue: 0.3, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Film Halation", parameterID: OpticsParamID.halation.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Lens Vignette", parameterID: OpticsParamID.vignette.rawValue, defaultValue: 0.3, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 2: Film & Glass Texture
-        parmsApi.startParameterGroup("Film & Glass Texture", parameterID: OpticsParamID.groupTexture.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Film & Glass Texture", parameterID: OpticsParamID.groupTexture.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Dirty Glass Smudge", parameterID: OpticsParamID.lensSmudge.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Film Light Leak", parameterID: OpticsParamID.lightLeak.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Leak Color", parameterID: OpticsParamID.leakHue.rawValue, defaultValue: 0.08, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -47,10 +48,10 @@ public class BENDROpticsFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Dust & Lint", parameterID: OpticsParamID.dust.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Film Scratches", parameterID: OpticsParamID.scratches.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Film Grain", parameterID: OpticsParamID.grain.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 3: Display & Retro HUD
-        parmsApi.startParameterGroup("Display & Retro HUD", parameterID: OpticsParamID.groupDisplay.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Display & Retro HUD", parameterID: OpticsParamID.groupDisplay.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "LCD Subpixel Grid", parameterID: OpticsParamID.lcdGrid.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Camcorder OSD", parameterID: OpticsParamID.osdShow.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "OSD Mode", parameterID: OpticsParamID.osdMode.rawValue, defaultValue: 0, menuEntries: [
@@ -59,7 +60,7 @@ public class BENDROpticsFilter: NSObject, FxTileableEffect {
             "Tape Counter"
         ], parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "OSD Glow", parameterID: OpticsParamID.osdGlow.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws {

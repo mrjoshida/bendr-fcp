@@ -9,7 +9,8 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
 
     private let apiManager: PROAPIAccessing
 
-    @objc public required init(apiManager: PROAPIAccessing) {
+    @objc(initWithAPIManager:)
+    public required init(apiManager: PROAPIAccessing) {
         self.apiManager = apiManager
         super.init()
     }
@@ -28,7 +29,7 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Transition & Blend
-        parmsApi.startParameterGroup("Transition & Blend", parameterID: TransitionParamID.groupTransition.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Transition & Blend", parameterID: TransitionParamID.groupTransition.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Transition Progress", parameterID: TransitionParamID.abMix.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Transition Type", parameterID: TransitionParamID.mixMode.rawValue, defaultValue: 0, menuEntries: [
             "Cross Dissolve",
@@ -57,10 +58,10 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
             "Vivid Light", "Pin Light", "Color Dodge", "Color Burn", "Divide", "Wrap Add",
             "XOR Logic", "AND Logic", "Hue", "Saturation", "Color", "Luminosity"
         ], parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 2: Wipe Geometry
-        parmsApi.startParameterGroup("Wipe Geometry", parameterID: TransitionParamID.groupWipe.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Wipe Geometry", parameterID: TransitionParamID.groupWipe.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Wipe Softness", parameterID: TransitionParamID.wipeSoft.rawValue, defaultValue: 0.03, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Wipe Frequency", parameterID: TransitionParamID.wipeDetail.rawValue, defaultValue: 0.3, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Center X", parameterID: TransitionParamID.wipeX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -71,10 +72,10 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
             "White", "Yellow", "Cyan", "Green", "Magenta", "Red", "Blue", "Black"
         ], parameterFlags: 0)
         parmsApi.addIntSlider(withName: "Multi-Tiling", parameterID: TransitionParamID.wipeRep.rawValue, defaultValue: 1, parameterMin: 1, parameterMax: 4, sliderMin: 1, sliderMax: 4, delta: 1, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 3: Keyer & Matte
-        parmsApi.startParameterGroup("Keyer & Matte", parameterID: TransitionParamID.groupKey.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Keyer & Matte", parameterID: TransitionParamID.groupKey.rawValue, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Key Mode", parameterID: TransitionParamID.mixKey.rawValue, defaultValue: 0, menuEntries: [
             "Off", "Luma White", "Luma Black", "Chroma Key"
         ], parameterFlags: 0)
@@ -89,7 +90,7 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
             "White", "Yellow", "Cyan", "Green", "Magenta", "Red", "Blue", "Black"
         ], parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Key Shadow", parameterID: TransitionParamID.mixKeyShadow.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws {

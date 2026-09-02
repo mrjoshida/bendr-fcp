@@ -9,7 +9,8 @@ public class BENDRCRTFilter: NSObject, FxTileableEffect {
 
     private let apiManager: PROAPIAccessing
 
-    @objc public required init(apiManager: PROAPIAccessing) {
+    @objc(initWithAPIManager:)
+    public required init(apiManager: PROAPIAccessing) {
         self.apiManager = apiManager
         super.init()
     }
@@ -28,7 +29,7 @@ public class BENDRCRTFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Monitor & Geometry
-        parmsApi.startParameterGroup("Monitor & Geometry", parameterID: CRTParamID.groupMonitor.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Monitor & Geometry", parameterID: CRTParamID.groupMonitor.rawValue, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Display Type", parameterID: CRTParamID.outModel.rawValue, defaultValue: 1, menuEntries: [
             "None",
             "Aperture Grille (Trinitron)",
@@ -41,35 +42,35 @@ public class BENDRCRTFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Screen Curvature", parameterID: CRTParamID.curvature.rawValue, defaultValue: 0.15, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Corner Rounding", parameterID: CRTParamID.cornerRound.rawValue, defaultValue: 0.1, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Vignette", parameterID: CRTParamID.vignette.rawValue, defaultValue: 0.3, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 2: Phosphor & Optics
-        parmsApi.startParameterGroup("Phosphor & Optics", parameterID: CRTParamID.groupPhosphor.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Phosphor & Optics", parameterID: CRTParamID.groupPhosphor.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Phosphor Trail", parameterID: CRTParamID.phosphor.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Beam Bloom", parameterID: CRTParamID.bloom.rawValue, defaultValue: 0.3, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Bloom Radius", parameterID: CRTParamID.bloomRad.rawValue, defaultValue: 0.4, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Halation", parameterID: CRTParamID.halation.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 3: Color & Picture
-        parmsApi.startParameterGroup("Color & Picture", parameterID: CRTParamID.groupPicture.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Color & Picture", parameterID: CRTParamID.groupPicture.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Gamma", parameterID: CRTParamID.outGamma.rawValue, defaultValue: 1.0, parameterMin: 0.2, parameterMax: 2.5, sliderMin: 0.2, sliderMax: 2.5, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Brightness", parameterID: CRTParamID.outBright.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Contrast", parameterID: CRTParamID.outContrast.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 2.0, sliderMin: 0.0, sliderMax: 2.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Saturation", parameterID: CRTParamID.outSat.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 2.0, sliderMin: 0.0, sliderMax: 2.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Color Warmth", parameterID: CRTParamID.outWarmth.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "White Clip", parameterID: CRTParamID.whiteClip.rawValue, defaultValue: 1.0, parameterMin: 0.5, parameterMax: 1.5, sliderMin: 0.5, sliderMax: 1.5, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 4: Glass & Overlays
-        parmsApi.startParameterGroup("Glass & Overlays", parameterID: CRTParamID.groupOverlays.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Glass & Overlays", parameterID: CRTParamID.groupOverlays.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Bezel Frame", parameterID: CRTParamID.bezel.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Glass Reflection", parameterID: CRTParamID.glassRefl.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Dust Particles", parameterID: CRTParamID.dust.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Surface Scratches", parameterID: CRTParamID.scratches.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Phosphor Grain", parameterID: CRTParamID.grain.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "OSD Channel", parameterID: CRTParamID.osdShow.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws {

@@ -69,15 +69,11 @@ static NSString * const _Nonnull kFxPropertyKey_NeedsFullBuffer = @"kFxPropertyK
                    defaultValue:(BOOL)defaultValue
                  parameterFlags:(UInt32)flags;
 
-- (BOOL)startParameterGroup:(NSString * _Nonnull)name
-                parameterID:(UInt32)parameterID
-             parameterFlags:(UInt32)flags;
+- (BOOL)startParameterSubGroup:(NSString * _Nonnull)name
+                   parameterID:(UInt32)parameterID
+                parameterFlags:(UInt32)flags;
 
-- (BOOL)endParameterGroup;
-
-- (BOOL)addParameterGroupWithName:(NSString * _Nonnull)name
-                      parameterID:(UInt32)parameterID
-                            flags:(UInt32)flags;
+- (BOOL)endParameterSubGroup;
 @end
 
 @protocol FxParameterRetrievalAPI_v6 <NSObject>

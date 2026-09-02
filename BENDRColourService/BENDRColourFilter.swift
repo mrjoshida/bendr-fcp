@@ -9,7 +9,8 @@ public class BENDRColourFilter: NSObject, FxTileableEffect {
 
     private let apiManager: PROAPIAccessing
 
-    @objc public required init(apiManager: PROAPIAccessing) {
+    @objc(initWithAPIManager:)
+    public required init(apiManager: PROAPIAccessing) {
         self.apiManager = apiManager
         super.init()
     }
@@ -28,7 +29,7 @@ public class BENDRColourFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Primary Color
-        parmsApi.startParameterGroup("Primary Color", parameterID: ColourParamID.groupPrimary.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Primary Color", parameterID: ColourParamID.groupPrimary.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Red Gain", parameterID: ColourParamID.rGain.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 3.0, sliderMin: 0.0, sliderMax: 3.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Green Gain", parameterID: ColourParamID.gGain.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 3.0, sliderMin: 0.0, sliderMax: 3.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Blue Gain", parameterID: ColourParamID.bGain.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 3.0, sliderMin: 0.0, sliderMax: 3.0, delta: 0.01, parameterFlags: 0)
@@ -36,10 +37,10 @@ public class BENDRColourFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Hue Shift", parameterID: ColourParamID.hue.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Brightness", parameterID: ColourParamID.brightness.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Contrast", parameterID: ColourParamID.contrast.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 3.0, sliderMin: 0.0, sliderMax: 3.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 2: Color Effects
-        parmsApi.startParameterGroup("Color Effects", parameterID: ColourParamID.groupEffects.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Color Effects", parameterID: ColourParamID.groupEffects.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Posterize", parameterID: ColourParamID.posterize.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Solarize", parameterID: ColourParamID.solarize.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Negative", parameterID: ColourParamID.negative.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -55,10 +56,10 @@ public class BENDRColourFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Silhouette Threshold", parameterID: ColourParamID.silThresh.rawValue, defaultValue: 0.45, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Silhouette Hue", parameterID: ColourParamID.silHue.rawValue, defaultValue: 0.08, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Glow", parameterID: ColourParamID.glow.rawValue, defaultValue: 0.15, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 3: Edge & Relief
-        parmsApi.startParameterGroup("Edge & Relief", parameterID: ColourParamID.groupEdge.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Edge & Relief", parameterID: ColourParamID.groupEdge.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Find Edges", parameterID: ColourParamID.findEdge.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Edge Hue", parameterID: ColourParamID.edgeHue.rawValue, defaultValue: 0.45, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Emboss", parameterID: ColourParamID.emboss.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -67,19 +68,19 @@ public class BENDRColourFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Diff Scale", parameterID: ColourParamID.diffScale.rawValue, defaultValue: 0.2, parameterMin: 0.01, parameterMax: 1.0, sliderMin: 0.01, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Amp Slicer", parameterID: ColourParamID.ampAmt.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Amp Bands", parameterID: ColourParamID.ampBands.rawValue, defaultValue: 0.5, parameterMin: 0.1, parameterMax: 2.0, sliderMin: 0.1, sliderMax: 2.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 4: Bent Enhancer
-        parmsApi.startParameterGroup("Bent Enhancer", parameterID: ColourParamID.groupEnhancer.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Bent Enhancer", parameterID: ColourParamID.groupEnhancer.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Colorize", parameterID: ColourParamID.colorize.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Color Bands", parameterID: ColourParamID.colorBands.rawValue, defaultValue: 1.5, parameterMin: 0.5, parameterMax: 10.0, sliderMin: 0.5, sliderMax: 10.0, delta: 0.1, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Color Sweep", parameterID: ColourParamID.colorSweep.rawValue, defaultValue: 0.15, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "RGB Separation", parameterID: ColourParamID.rgbSep.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Invert Flicker", parameterID: ColourParamID.invFlick.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 5: Contour & Dither
-        parmsApi.startParameterGroup("Contour & Dither", parameterID: ColourParamID.groupContour.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Contour & Dither", parameterID: ColourParamID.groupContour.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Contour", parameterID: ColourParamID.contour.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Contour Bands", parameterID: ColourParamID.contourBands.rawValue, defaultValue: 10.0, parameterMin: 1.0, parameterMax: 32.0, sliderMin: 1.0, sliderMax: 32.0, delta: 1.0, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Contour Width", parameterID: ColourParamID.contourWidth.rawValue, defaultValue: 1.2, parameterMin: 0.5, parameterMax: 5.0, sliderMin: 0.5, sliderMax: 5.0, delta: 0.1, parameterFlags: 0)
@@ -88,17 +89,17 @@ public class BENDRColourFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Luma Quantize", parameterID: ColourParamID.lumaSteps.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Luma Step Count", parameterID: ColourParamID.stepCount.rawValue, defaultValue: 5.0, parameterMin: 2.0, parameterMax: 16.0, sliderMin: 2.0, sliderMax: 16.0, delta: 1.0, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Dither", parameterID: ColourParamID.dither.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
 
         // Group 6: Modulation Lines
-        parmsApi.startParameterGroup("Modulation Lines", parameterID: ColourParamID.groupModulation.rawValue, parameterFlags: 0)
+        parmsApi.startParameterSubGroup("Modulation Lines", parameterID: ColourParamID.groupModulation.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Modulation", parameterID: ColourParamID.mline.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Line Scale", parameterID: ColourParamID.mlineScale.rawValue, defaultValue: 1.0, parameterMin: 0.2, parameterMax: 5.0, sliderMin: 0.2, sliderMax: 5.0, delta: 0.05, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Line Gain", parameterID: ColourParamID.mlineGain.rawValue, defaultValue: 1.15, parameterMin: 0.5, parameterMax: 3.0, sliderMin: 0.5, sliderMax: 3.0, delta: 0.05, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Line Feedback", parameterID: ColourParamID.mlineFb.rawValue, defaultValue: 0.92, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Line Window", parameterID: ColourParamID.mlineWin.rawValue, defaultValue: 32.0, parameterMin: 4.0, parameterMax: 128.0, sliderMin: 4.0, sliderMax: 128.0, delta: 1.0, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Line Color", parameterID: ColourParamID.mlineCol.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterGroup()
+        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws {
