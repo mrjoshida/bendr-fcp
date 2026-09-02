@@ -13,8 +13,8 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
         super.init()
     }
 
-    public func properties(_ properties: AutoreleasingUnsafeMutablePointer<NSDictionary>?) throws {
-        properties?.pointee = [
+    public func properties(_ properties: AutoreleasingUnsafeMutablePointer<NSDictionary?>) throws {
+        properties.pointee = [
             kFxPropertyKey_MayRemapTime: true,
             kFxPropertyKey_PixelTransformSupport: kFxPixelTransform_Supported,
             kFxPropertyKey_NeedsFullBuffer: true
@@ -103,22 +103,23 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
         parmsApi.endParameterSubGroup()
     }
 
-    public func scheduleInputs(_ request: UnsafeMutablePointer<FxScheduleInputsRequest>, with pluginState: Data?, at time: CMTime) throws {
+    public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
         guard let pluginState = pluginState,
               let params = try? FeedbackParams.decode(from: pluginState) else {
-            request.addInput(0, with: time)
+            scheduleInputsRequest.addInput(0, with: requestTime)
             return
         }
 
-        request.addInput(0, with: time)
+        scheduleInputsRequest.addInput(0, with: requestTime)
         let frameDuration = CMTime(value: 1001, timescale: 30000)
 
         if params.fbAmount > 0.01 {
-            let histTime = CMTimeSubtract(time, frameDuration)
-            request.addInput(0, with: histTime)
+            let histTime = CMTimeSubtract(requestTime, frameDuration)
+            scheduleInputsRequest.addInput(0, with: histTime)
         }
     }
-    public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData>?, at renderTime: CMTime, quality qualityLevel: UInt) throws {
+
+    public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData?>, at renderTime: CMTime, quality qualityLevel: UInt) throws {
         guard let parmsApi = apiManager.api(for: FxParameterRetrievalAPI_v6.self) as? FxParameterRetrievalAPI_v6 else {
             return
         }
@@ -195,7 +196,7 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
             p.shakeY = cos(phase * 11.3) * sin(phase * 5.7) * shake * 0.1
         }
 
-        pluginState?.pointee = try p.encode() as NSData
+        pluginState.pointee = try p.encode() as NSData
     }
 
     public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImage], destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {

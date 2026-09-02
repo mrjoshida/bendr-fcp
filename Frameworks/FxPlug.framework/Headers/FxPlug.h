@@ -102,6 +102,51 @@ static NSString * const _Nonnull kFxPropertyKey_NeedsFullBuffer = @"kFxPropertyK
 @property (readonly) id<MTLTexture> _Nonnull texture;
 @end
 
+#pragma mark - FxTileableEffect Protocol
+
+@protocol FxTileableEffect <NSObject>
+
+- (nullable instancetype)initWithAPIManager:(id<PROAPIAccessing> _Nonnull)apiManager;
+
+- (BOOL)properties:(NSDictionary * _Nullable * _Nonnull)properties
+             error:(NSError * _Nullable * _Nullable)error;
+
+- (BOOL)addParametersWithError:(NSError * _Nullable * _Nullable)error;
+
+- (BOOL)scheduleInputs:(FxScheduleInputsRequest * _Nonnull)scheduleInputsRequest
+       withPluginState:(NSData * _Nullable)pluginState
+                atTime:(CMTime)requestTime
+                 error:(NSError * _Nullable * _Nullable)error;
+
+- (BOOL)pluginState:(NSData * _Nullable * _Nonnull)pluginState
+             atTime:(CMTime)renderTime
+            quality:(NSUInteger)qualityLevel
+              error:(NSError * _Nullable * _Nullable)error;
+
+- (BOOL)destinationImageRect:(FxRect * _Nonnull)destinationImageRect
+                sourceImages:(NSArray<FxImage *> * _Nonnull)sourceImages
+            destinationImage:(FxImage * _Nonnull)destinationImage
+                 pluginState:(NSData * _Nullable)pluginState
+                      atTime:(CMTime)renderTime
+                       error:(NSError * _Nullable * _Nullable)error;
+
+- (BOOL)sourceTileRect:(FxRect * _Nonnull)sourceTileRect
+      sourceImageIndex:(NSUInteger)sourceImageIndex
+          sourceImages:(NSArray<FxImage *> * _Nonnull)sourceImages
+   destinationTileRect:(FxRect)destinationTileRect
+      destinationImage:(FxImage * _Nonnull)destinationImage
+           pluginState:(NSData * _Nullable)pluginState
+                atTime:(CMTime)renderTime
+                 error:(NSError * _Nullable * _Nullable)error;
+
+- (BOOL)renderDestinationImage:(FxImageTile * _Nonnull)destinationImage
+                  sourceImages:(NSArray<FxImageTile *> * _Nonnull)sourceImages
+                   pluginState:(NSData * _Nullable)pluginState
+                        atTime:(CMTime)renderTime
+                         error:(NSError * _Nullable * _Nullable)error;
+
+@end
+
 #pragma mark - FxPrincipal
 
 @interface FxPrincipal : NSObject

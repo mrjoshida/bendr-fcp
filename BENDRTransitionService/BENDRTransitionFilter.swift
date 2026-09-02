@@ -15,8 +15,8 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
         super.init()
     }
 
-    public func properties(_ properties: AutoreleasingUnsafeMutablePointer<NSDictionary>?) throws {
-        properties?.pointee = [
+    public func properties(_ properties: AutoreleasingUnsafeMutablePointer<NSDictionary?>) throws {
+        properties.pointee = [
             kFxPropertyKey_MayRemapTime: true,
             kFxPropertyKey_PixelTransformSupport: kFxPixelTransform_Supported,
             kFxPropertyKey_NeedsFullBuffer: true
@@ -93,12 +93,12 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
         parmsApi.endParameterSubGroup()
     }
 
-    public func scheduleInputs(_ request: UnsafeMutablePointer<FxScheduleInputsRequest>, with pluginState: Data?, at time: CMTime) throws {
-        request.addInput(0, with: time)
-        request.addInput(1, with: time) // Second input clip if in a transition/composite
+    public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
+        scheduleInputsRequest.addInput(0, with: requestTime)
+        scheduleInputsRequest.addInput(1, with: requestTime) // Second input clip if in a transition/composite
     }
 
-    public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData>?, at renderTime: CMTime, quality qualityLevel: UInt) throws {
+    public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData?>, at renderTime: CMTime, quality qualityLevel: UInt) throws {
         guard let parmsApi = apiManager.api(for: FxParameterRetrievalAPI_v6.self) as? FxParameterRetrievalAPI_v6 else {
             return
         }
@@ -133,7 +133,7 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
         if parmsApi.getFloatValue(&fVal, fromParameter: TransitionParamID.mixKeyShadow.rawValue, at: renderTime) { p.mixKeyShadow = Float(fVal) }
 
         p.time = Float(CMTimeGetSeconds(renderTime))
-        pluginState?.pointee = try p.encode() as NSData
+        pluginState.pointee = try p.encode() as NSData
     }
 
     public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImage], destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {

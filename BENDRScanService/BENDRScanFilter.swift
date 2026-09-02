@@ -15,16 +15,16 @@ public class BENDRScanFilter: NSObject, FxTileableEffect {
         super.init()
     }
     
-    public func properties(_ properties: AutoreleasingUnsafeMutablePointer<NSDictionary>?) throws {
-        properties?.pointee = [
+    public func properties(_ properties: AutoreleasingUnsafeMutablePointer<NSDictionary?>) throws {
+        properties.pointee = [
             kFxPropertyKey_MayRemapTime: true,
             kFxPropertyKey_PixelTransformSupport: kFxPixelTransform_Supported,
             kFxPropertyKey_NeedsFullBuffer: true
         ] as NSDictionary
     }
     
-    public func scheduleInputs(_ request: UnsafeMutablePointer<FxScheduleInputsRequest>, with pluginState: Data?, at time: CMTime) throws {
-        request.addInput(0, with: time)
+    public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
+        scheduleInputsRequest.addInput(0, with: requestTime)
     }
     
     public func addParameters() throws {
@@ -65,17 +65,17 @@ public class BENDRScanFilter: NSObject, FxTileableEffect {
         parmsApi.endParameterSubGroup()
     }
     
-    public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData>?, at renderTime: CMTime, quality qualityLevel: UInt) throws {
+    public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData?>, at renderTime: CMTime, quality qualityLevel: UInt) throws {
         guard let parmsApi = apiManager.api(for: FxParameterRetrievalAPI_v6.self) as? FxParameterRetrievalAPI_v6 else {
             return
         }
         
         var p = ScanParams()
         var fVal: Double = 0.0
-        var iVal: Int32 = 0
         var bVal = ObjCBool(false)
         
         if parmsApi.getFloatValue(&fVal, fromParameter: ScanParamID.scanAmt.rawValue, at: renderTime) { p.scanAmt = Float(fVal) }
+        var iVal: Int32 = 0
         if parmsApi.getIntValue(&iVal, fromParameter: ScanParamID.scanLines.rawValue, at: renderTime) { p.lines = Float(iVal) }
         if parmsApi.getIntValue(&iVal, fromParameter: ScanParamID.scanSamples.rawValue, at: renderTime) { p.samples = Float(iVal) }
         if parmsApi.getFloatValue(&fVal, fromParameter: ScanParamID.scanWidth.rawValue, at: renderTime) { p.scanWidth = Float(fVal) }
@@ -100,7 +100,7 @@ public class BENDRScanFilter: NSObject, FxTileableEffect {
         if parmsApi.getFloatValue(&fVal, fromParameter: ScanParamID.scanHue.rawValue, at: renderTime) { p.scanHue = Float(fVal) }
         
         p.time = Float(CMTimeGetSeconds(renderTime))
-        pluginState?.pointee = try p.encode() as NSData
+        pluginState.pointee = try p.encode() as NSData
     }
     
     public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImage], destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {

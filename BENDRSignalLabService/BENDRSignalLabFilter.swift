@@ -15,8 +15,8 @@ public class BENDRSignalLabFilter: NSObject, FxTileableEffect {
         super.init()
     }
 
-    public func properties(_ properties: AutoreleasingUnsafeMutablePointer<NSDictionary>?) throws {
-        properties?.pointee = [
+    public func properties(_ properties: AutoreleasingUnsafeMutablePointer<NSDictionary?>) throws {
+        properties.pointee = [
             kFxPropertyKey_MayRemapTime: true,
             kFxPropertyKey_PixelTransformSupport: kFxPixelTransform_Supported,
             kFxPropertyKey_NeedsFullBuffer: true
@@ -79,11 +79,11 @@ public class BENDRSignalLabFilter: NSObject, FxTileableEffect {
         parmsApi.endParameterSubGroup()
     }
 
-    public func scheduleInputs(_ request: UnsafeMutablePointer<FxScheduleInputsRequest>, with pluginState: Data?, at time: CMTime) throws {
-        request.addInput(0, with: time)
+    public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
+        scheduleInputsRequest.addInput(0, with: requestTime)
     }
 
-    public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData>?, at renderTime: CMTime, quality qualityLevel: UInt) throws {
+    public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData?>, at renderTime: CMTime, quality qualityLevel: UInt) throws {
         guard let parmsApi = apiManager.api(for: FxParameterRetrievalAPI_v6.self) as? FxParameterRetrievalAPI_v6 else {
             return
         }
@@ -121,7 +121,7 @@ public class BENDRSignalLabFilter: NSObject, FxTileableEffect {
         if parmsApi.getFloatValue(&fVal, fromParameter: SignalLabParamID.fieldHue.rawValue, at: renderTime) { p.fieldHue = Float(fVal) }
 
         p.time = Float(CMTimeGetSeconds(renderTime))
-        pluginState?.pointee = try p.encode() as NSData
+        pluginState.pointee = try p.encode() as NSData
     }
 
     public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImage], destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {

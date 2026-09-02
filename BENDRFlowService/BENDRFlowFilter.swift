@@ -15,8 +15,8 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
         super.init()
     }
 
-    public func properties(_ properties: AutoreleasingUnsafeMutablePointer<NSDictionary>?) throws {
-        properties?.pointee = [
+    public func properties(_ properties: AutoreleasingUnsafeMutablePointer<NSDictionary?>) throws {
+        properties.pointee = [
             kFxPropertyKey_MayRemapTime: true,
             kFxPropertyKey_PixelTransformSupport: kFxPixelTransform_Supported,
             kFxPropertyKey_NeedsFullBuffer: true
@@ -84,17 +84,17 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
         parmsApi.endParameterSubGroup()
     }
 
-    public func scheduleInputs(_ request: UnsafeMutablePointer<FxScheduleInputsRequest>, with pluginState: Data?, at time: CMTime) throws {
+    public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
         // Schedule current frame
-        request.addInput(0, with: time)
+        scheduleInputsRequest.addInput(0, with: requestTime)
 
         // Schedule previous frame for motion estimation and advection history
         let frameDuration = CMTime(value: 1001, timescale: 30000)
-        let prevTime = CMTimeSubtract(time, frameDuration)
-        request.addInput(0, with: prevTime)
+        let prevTime = CMTimeSubtract(requestTime, frameDuration)
+        scheduleInputsRequest.addInput(0, with: prevTime)
     }
 
-    public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData>?, at renderTime: CMTime, quality qualityLevel: UInt) throws {
+    public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData?>, at renderTime: CMTime, quality qualityLevel: UInt) throws {
         guard let parmsApi = apiManager.api(for: FxParameterRetrievalAPI_v6.self) as? FxParameterRetrievalAPI_v6 else {
             return
         }
@@ -132,7 +132,7 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
         if parmsApi.getFloatValue(&fVal, fromParameter: FlowParamID.flowFade.rawValue, at: renderTime) { p.flowFade = Float(fVal) }
 
         p.time = Float(CMTimeGetSeconds(renderTime))
-        pluginState?.pointee = try p.encode() as NSData
+        pluginState.pointee = try p.encode() as NSData
     }
 
     public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImage], destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {
