@@ -90,16 +90,20 @@ static NSString * const _Nonnull kFxPropertyKey_NeedsFullBuffer = @"kFxPropertyK
 
 @interface FxImageTile : NSObject
 @property (readonly) UInt64 deviceRegistryID;
-@property (readonly) FxRect tileRect;
-@property (readonly) FxRect imageRect;
+@property (readonly) FxRect tilePixelBounds;
+@property (readonly) FxRect imagePixelBounds;
+@property (readonly) IOSurfaceRef _Nullable ioSurface;
 - (nullable id<MTLTexture>)metalTextureForDevice:(id<MTLDevice> _Nonnull)device NS_SWIFT_NAME(metalTexture(for:));
 @end
 
 @interface FxImage : NSObject
 @property (readonly) UInt64 deviceRegistryID;
-@property (readonly) UInt32 width;
-@property (readonly) UInt32 height;
-@property (readonly) id<MTLTexture> _Nonnull texture;
+@property (readonly) NSUInteger width;
+@property (readonly) NSUInteger height;
+@property (readonly) NSUInteger depth;
+@property (readonly) NSUInteger bytes;
+@property (readonly) FxRect bounds;
+@property (readonly) FxRect dod;
 @end
 
 #pragma mark - FxTileableEffect Protocol
