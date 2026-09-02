@@ -105,7 +105,7 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
         var p = TransitionParams()
         var fVal: Double = 0.0
         var iVal: Int32 = 0
-        var bVal: Bool = false
+        var bVal = ObjCBool(false)
 
         if parmsApi.getFloatValue(&fVal, fromParameter: TransitionParamID.abMix.rawValue, at: renderTime) { p.abMix = Float(fVal) }
         if parmsApi.getIntValue(&iVal, fromParameter: TransitionParamID.mixMode.rawValue, at: renderTime) { p.mixMode = Float(iVal) }
@@ -115,7 +115,7 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
         if parmsApi.getFloatValue(&fVal, fromParameter: TransitionParamID.wipeDetail.rawValue, at: renderTime) { p.wipeDetail = Float(fVal) }
         if parmsApi.getFloatValue(&fVal, fromParameter: TransitionParamID.wipeX.rawValue, at: renderTime) { p.wipeX = Float(fVal) }
         if parmsApi.getFloatValue(&fVal, fromParameter: TransitionParamID.wipeY.rawValue, at: renderTime) { p.wipeY = Float(fVal) }
-        if parmsApi.getBoolValue(&bVal, fromParameter: TransitionParamID.wipeInv.rawValue, at: renderTime) { p.wipeInv = bVal ? 1.0 : 0.0 }
+        if parmsApi.getBoolValue(&bVal, fromParameter: TransitionParamID.wipeInv.rawValue, at: renderTime) { p.wipeInv = bVal.boolValue ? 1.0 : 0.0 }
         if parmsApi.getFloatValue(&fVal, fromParameter: TransitionParamID.wipeBord.rawValue, at: renderTime) { p.wipeBord = Float(fVal) }
         if parmsApi.getIntValue(&iVal, fromParameter: TransitionParamID.wipeBordCol.rawValue, at: renderTime) { p.wipeBordCol = Float(iVal) / 7.0 }
         if parmsApi.getIntValue(&iVal, fromParameter: TransitionParamID.wipeRep.rawValue, at: renderTime) { p.wipeRep = Float(iVal) }
@@ -124,7 +124,7 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
         if parmsApi.getFloatValue(&fVal, fromParameter: TransitionParamID.mixKeyThresh.rawValue, at: renderTime) { p.mixKeyThresh = Float(fVal) }
         if parmsApi.getFloatValue(&fVal, fromParameter: TransitionParamID.mixKeySoft.rawValue, at: renderTime) { p.mixKeySoft = Float(fVal) }
         if parmsApi.getFloatValue(&fVal, fromParameter: TransitionParamID.mixKeyHue.rawValue, at: renderTime) { p.mixKeyHue = Float(fVal) }
-        if parmsApi.getBoolValue(&bVal, fromParameter: TransitionParamID.mixKeyInv.rawValue, at: renderTime) { p.mixKeyInv = bVal ? 1.0 : 0.0 }
+        if parmsApi.getBoolValue(&bVal, fromParameter: TransitionParamID.mixKeyInv.rawValue, at: renderTime) { p.mixKeyInv = bVal.boolValue ? 1.0 : 0.0 }
         if parmsApi.getFloatValue(&fVal, fromParameter: TransitionParamID.mixKeyGain.rawValue, at: renderTime) { p.mixKeyGain = Float(fVal) }
         if parmsApi.getFloatValue(&fVal, fromParameter: TransitionParamID.mixKeyDens.rawValue, at: renderTime) { p.mixKeyDens = Float(fVal) }
         if parmsApi.getFloatValue(&fVal, fromParameter: TransitionParamID.mixKeyEdge.rawValue, at: renderTime) { p.mixKeyEdge = Float(fVal) }

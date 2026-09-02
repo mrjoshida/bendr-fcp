@@ -1,6 +1,9 @@
-import Foundation
+// BENDRVHSParams.swift — Parameter declarations and state model for BENDR VHS
 
-struct BENDRVHSParams {
+import Foundation
+import FxPlug
+
+struct VHSParams: BendrParams {
     var chromaBleed: Float = 0.25
     var chromaDelay: Float = 0.0
     var lumaBleed: Float = 0.0
@@ -47,8 +50,54 @@ struct BENDRVHSParams {
     // Hidden globals needed by shader
     var time: Float = 0.0
     var frame: Float = 0.0
-    var rows: Float = 576.0
+    var rows: Float = 1080.0
     var vrollpos: Float = 0.0
     var humpos: Float = 0.0
     var rollBar: Float = 0.0
+}
+
+enum VHSParamID: UInt32 {
+    case groupTape          = 1001
+    case tapeSpeed          = 1002
+    case tracking           = 1003
+    case trackPhase         = 1004
+    case trackHunt          = 1005
+    case dropout            = 1006
+    case dropoutLen         = 1007
+    case crease             = 1008
+    case creasePos          = 1009
+    case headClog           = 1010
+    case azimuth            = 1011
+    case headSwitch         = 1012
+    case tapeWow            = 1013
+    case wowRate            = 1014
+    case flutter            = 1015
+    case tapeStretch        = 1016
+    case edgeDmg            = 1017
+    case genLoss            = 1018
+    case genCount           = 1019
+
+    case groupRF            = 1030
+    case chromaBleed        = 1031
+    case chromaDelay        = 1032
+    case lumaBleed          = 1033
+    case bleedDir           = 1034
+    case vBleed             = 1035
+    case rainbow            = 1036
+    case dotCrawl           = 1037
+    case ringing            = 1038
+    case signalNoise        = 1039
+    case chromaNoise        = 1040
+    case chromaLoss         = 1041
+    case printThru          = 1042
+    case hiss               = 1043
+
+    case groupSync          = 1050
+    case hWobble            = 1051
+    case wobbleFreq         = 1052
+    case tear               = 1053
+    case tearSize           = 1054
+    case vRoll              = 1055
+    case jitter             = 1056
+    case humBar             = 1057
 }

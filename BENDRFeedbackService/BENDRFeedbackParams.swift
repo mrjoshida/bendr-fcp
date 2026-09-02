@@ -1,150 +1,143 @@
+// BENDRFeedbackParams.swift — Parameter declarations and state model for BENDR Feedback
+
 import Foundation
 import FxPlug
 
-struct BENDRFeedbackParams {
-    enum ParamID: UInt32 {
-        // Feedback Core
-        case fbAmount = 3000
-        case fbZoom
-        case fbRotate
-        case fbHue
-        case fbShiftX
-        case fbShiftY
-        case fbMode
-        
-        // Feedback Shape
-        case fbShearX = 3010
-        case fbShearY
-        case fbWrap
-        case fbMirror
-        case fbFlip
-        case fbBlend
-        
-        // Feedback Color
-        case fbGainR = 3020
-        case fbGainG
-        case fbGainB
-        case fbSat
-        case fbVal
-        case fbPost
-        case fbChromOff
-        case fbInvert
-        case fbAuto
-        
-        // Feedback Dynamics
-        case fbBlur = 3030
-        case fbBlur2
-        case fbSharp
-        case fbDrive
-        case fbPivot
-        case fbThresh
-        case fbThreshSoft
-        case fbNL
-        
-        // Feedback Noise
-        case fbNoise = 3040
-        case fbNoiseScale
-        case fbRoll
-        case fbJitter
-        
-        // Time Base
-        case echo = 3050
-        case delayFrames
-        case stutter
-        case strobe
-        case shake
-        case shakeRate
-        
-        // Source Framing
-        case srcZoom = 3060
-        case srcX
-        case srcY
-        case srcRot
-        case flipMode
-        case mirrorMode
-        case multiN
-        case kaleido
-        case kaleidoN
-        case kaleidoRot
-        case kaleidoX
-        case kaleidoY
-        case edgeMode
-    }
-    
-    static func addParameters(to api: PROAPIAccessing) throws {
-        guard let paramAPI = api.apiForProtocol(FxParameterCreationAPI_v5.self) as? FxParameterCreationAPI_v5 else {
-            throw NSError(domain: "BENDRFeedback", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to get FxParameterCreationAPI_v5"])
-        }
-        
-        paramAPI.addParameterGroup(withName: "Source Framing", parameterID: 3900, flags: 0)
-        paramAPI.addFloatSlider(withName: "Zoom", parameterID: ParamID.srcZoom.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Pos X", parameterID: ParamID.srcX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Pos Y", parameterID: ParamID.srcY.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Rotate", parameterID: ParamID.srcRot.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addPopupMenu(withName: "Flip", parameterID: ParamID.flipMode.rawValue, defaultValue: 0, menuEntries: ["Off", "Horizontal", "Vertical", "Both"], flags: 0)
-        paramAPI.addPopupMenu(withName: "Mirror", parameterID: ParamID.mirrorMode.rawValue, defaultValue: 0, menuEntries: ["Off", "Horizontal", "Vertical", "Both"], flags: 0)
-        paramAPI.addFloatSlider(withName: "Multi Grid", parameterID: ParamID.multiN.rawValue, defaultValue: 1.0, parameterMin: 1.0, parameterMax: 8.0, sliderMin: 1.0, sliderMax: 8.0, delta: 1.0, flags: 0)
-        paramAPI.addPopupMenu(withName: "Edge Mode", parameterID: ParamID.edgeMode.rawValue, defaultValue: 0, menuEntries: ["Black", "Tile", "Mirror"], flags: 0)
-        
-        paramAPI.addFloatSlider(withName: "Kaleido", parameterID: ParamID.kaleido.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Fold N", parameterID: ParamID.kaleidoN.rawValue, defaultValue: 3.0, parameterMin: 2.0, parameterMax: 12.0, sliderMin: 2.0, sliderMax: 12.0, delta: 1.0, flags: 0)
-        paramAPI.addFloatSlider(withName: "Fold Spin", parameterID: ParamID.kaleidoRot.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Fold Ctr X", parameterID: ParamID.kaleidoX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Fold Ctr Y", parameterID: ParamID.kaleidoY.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.endParameterGroup()
-        
-        paramAPI.addParameterGroup(withName: "Feedback Core", parameterID: 3901, flags: 0)
-        paramAPI.addFloatSlider(withName: "Amount", parameterID: ParamID.fbAmount.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 0.99, sliderMin: 0.0, sliderMax: 0.97, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Zoom", parameterID: ParamID.fbZoom.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Rotate", parameterID: ParamID.fbRotate.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Hue Spin", parameterID: ParamID.fbHue.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Shift X", parameterID: ParamID.fbShiftX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Shift Y", parameterID: ParamID.fbShiftY.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Shear X", parameterID: ParamID.fbShearX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Shear Y", parameterID: ParamID.fbShearY.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addPopupMenu(withName: "Wrap", parameterID: ParamID.fbWrap.rawValue, defaultValue: 0, menuEntries: ["Clamp", "Repeat", "Mirror"], flags: 0)
-        paramAPI.addPopupMenu(withName: "Mirror", parameterID: ParamID.fbMirror.rawValue, defaultValue: 0, menuEntries: ["Off", "Horizontal", "Vertical", "Both"], flags: 0)
-        paramAPI.addPopupMenu(withName: "Flip", parameterID: ParamID.fbFlip.rawValue, defaultValue: 0, menuEntries: ["Off", "Horizontal", "Vertical", "Both"], flags: 0)
-        paramAPI.addPopupMenu(withName: "Blend", parameterID: ParamID.fbBlend.rawValue, defaultValue: 0, menuEntries: ["Mix", "Add", "Screen", "Max", "Min", "Difference"], flags: 0)
-        paramAPI.endParameterGroup()
-        
-        paramAPI.addParameterGroup(withName: "Feedback Color", parameterID: 3902, flags: 0)
-        paramAPI.addFloatSlider(withName: "Gain R", parameterID: ParamID.fbGainR.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 1.5, sliderMin: 0.0, sliderMax: 1.5, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Gain G", parameterID: ParamID.fbGainG.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 1.5, sliderMin: 0.0, sliderMax: 1.5, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Gain B", parameterID: ParamID.fbGainB.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 1.5, sliderMin: 0.0, sliderMax: 1.5, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Sat / Pass", parameterID: ParamID.fbSat.rawValue, defaultValue: 1.0, parameterMin: 0.5, parameterMax: 1.5, sliderMin: 0.5, sliderMax: 1.5, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Val / Pass", parameterID: ParamID.fbVal.rawValue, defaultValue: 1.0, parameterMin: 0.5, parameterMax: 1.5, sliderMin: 0.5, sliderMax: 1.5, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Posterize", parameterID: ParamID.fbPost.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Chroma Off", parameterID: ParamID.fbChromOff.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addToggleButton(withName: "Invert", parameterID: ParamID.fbInvert.rawValue, defaultValue: false, flags: 0)
-        paramAPI.addToggleButton(withName: "Auto Level", parameterID: ParamID.fbAuto.rawValue, defaultValue: false, flags: 0)
-        paramAPI.endParameterGroup()
-        
-        paramAPI.addParameterGroup(withName: "Feedback Dynamics", parameterID: 3903, flags: 0)
-        paramAPI.addFloatSlider(withName: "Blur", parameterID: ParamID.fbBlur.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Blur 2 (DoG)", parameterID: ParamID.fbBlur2.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Sharpen", parameterID: ParamID.fbSharp.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 2.0, sliderMin: 0.0, sliderMax: 2.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Drive", parameterID: ParamID.fbDrive.rawValue, defaultValue: 1.0, parameterMin: 0.2, parameterMax: 4.0, sliderMin: 0.2, sliderMax: 4.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Pivot", parameterID: ParamID.fbPivot.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Threshold", parameterID: ParamID.fbThresh.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Thresh Soft", parameterID: ParamID.fbThreshSoft.rawValue, defaultValue: 0.05, parameterMin: 0.005, parameterMax: 0.5, sliderMin: 0.005, sliderMax: 0.5, delta: 0.01, flags: 0)
-        paramAPI.addPopupMenu(withName: "Curve", parameterID: ParamID.fbNL.rawValue, defaultValue: 0, menuEntries: ["Clamp", "Tanh", "Wrap", "Fold"], flags: 0)
-        paramAPI.endParameterGroup()
-        
-        paramAPI.addParameterGroup(withName: "Feedback Noise", parameterID: 3904, flags: 0)
-        paramAPI.addFloatSlider(withName: "Loop Noise", parameterID: ParamID.fbNoise.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Noise Scale", parameterID: ParamID.fbNoiseScale.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "V Roll / Pass", parameterID: ParamID.fbRoll.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Sync Jitter", parameterID: ParamID.fbJitter.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.endParameterGroup()
-        
-        paramAPI.addParameterGroup(withName: "Time Base", parameterID: 3905, flags: 0)
-        paramAPI.addFloatSlider(withName: "Echo", parameterID: ParamID.echo.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Delay Frm", parameterID: ParamID.delayFrames.rawValue, defaultValue: 3.0, parameterMin: 1.0, parameterMax: 29.0, sliderMin: 1.0, sliderMax: 29.0, delta: 1.0, flags: 0)
-        paramAPI.addFloatSlider(withName: "Stutter", parameterID: ParamID.stutter.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Strobe", parameterID: ParamID.strobe.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Shake", parameterID: ParamID.shake.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.addFloatSlider(withName: "Shake Rate", parameterID: ParamID.shakeRate.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, flags: 0)
-        paramAPI.endParameterGroup()
-    }
+struct FeedbackParams: BendrParams {
+    var srcAspect: Float = 1.7777778
+    var hasSrc: Float = 1.0
+    var hasDelay: Float = 0.0
+    var time: Float = 0.0
+
+    var fbAmount: Float = 0.0
+    var fbZoom: Float = 0.0
+    var fbRotate: Float = 0.0
+    var fbHue: Float = 0.0
+    var fbShiftX: Float = 0.0
+    var fbShiftY: Float = 0.0
+    var fbMode: Float = 0.0
+
+    var echo: Float = 0.0
+    var srcZoom: Float = 0.0
+    var srcX: Float = 0.0
+    var srcY: Float = 0.0
+    var srcRot: Float = 0.0
+    var edgeMode: Float = 0.0
+
+    var flipMode: Float = 0.0
+    var mirrorMode: Float = 0.0
+    var multiN: Float = 1.0
+    var shakeX: Float = 0.0
+    var shakeY: Float = 0.0
+
+    var kaleido: Float = 0.0
+    var kaleidoN: Float = 3.0
+    var kaleidoRot: Float = 0.0
+    var kaleidoX: Float = 0.0
+    var kaleidoY: Float = 0.0
+
+    var fbShearX: Float = 0.0
+    var fbShearY: Float = 0.0
+    var fbGainR: Float = 1.0
+    var fbGainG: Float = 1.0
+    var fbGainB: Float = 1.0
+    var fbSat: Float = 1.0
+    var fbVal: Float = 1.0
+    var fbPost: Float = 0.0
+    var fbChromOff: Float = 0.0
+
+    var fbBlur: Float = 0.0
+    var fbBlur2: Float = 0.0
+    var fbSharp: Float = 0.0
+    var fbDrive: Float = 1.0
+    var fbPivot: Float = 0.5
+    var fbThresh: Float = 0.0
+    var fbThreshSoft: Float = 0.05
+
+    var fbNoise: Float = 0.0
+    var fbNoiseScale: Float = 0.5
+    var fbRoll: Float = 0.0
+    var fbJitter: Float = 0.0
+
+    var fbWrap: Float = 0.0
+    var fbMirror: Float = 0.0
+    var fbBlend: Float = 0.0
+    var fbNL: Float = 0.0
+    var fbInvert: Float = 0.0
+    var autoGain: Float = 0.0
+}
+
+enum FeedbackParamID: UInt32 {
+    // Feedback Core
+    case groupCore      = 3901
+    case fbAmount       = 3000
+    case fbZoom         = 3001
+    case fbRotate       = 3002
+    case fbHue          = 3003
+    case fbShiftX       = 3004
+    case fbShiftY       = 3005
+    case fbMode         = 3006
+
+    // Feedback Shape
+    case fbShearX       = 3010
+    case fbShearY       = 3011
+    case fbWrap         = 3012
+    case fbMirror       = 3013
+    case fbFlip         = 3014
+    case fbBlend        = 3015
+
+    // Feedback Color
+    case groupColor     = 3902
+    case fbGainR        = 3020
+    case fbGainG        = 3021
+    case fbGainB        = 3022
+    case fbSat          = 3023
+    case fbVal          = 3024
+    case fbPost         = 3025
+    case fbChromOff     = 3026
+    case fbInvert       = 3027
+    case fbAuto         = 3028
+
+    // Feedback Dynamics
+    case groupDynamics  = 3903
+    case fbBlur         = 3030
+    case fbBlur2        = 3031
+    case fbSharp        = 3032
+    case fbDrive        = 3033
+    case fbPivot        = 3034
+    case fbThresh       = 3035
+    case fbThreshSoft   = 3036
+    case fbNL           = 3037
+
+    // Feedback Noise
+    case groupNoise     = 3904
+    case fbNoise        = 3040
+    case fbNoiseScale   = 3041
+    case fbRoll         = 3042
+    case fbJitter       = 3043
+
+    // Time Base
+    case groupTime      = 3905
+    case echo           = 3050
+    case delayFrames    = 3051
+    case stutter        = 3052
+    case strobe         = 3053
+    case shake          = 3054
+    case shakeRate      = 3055
+
+    // Source Framing
+    case groupSource    = 3900
+    case srcZoom        = 3060
+    case srcX           = 3061
+    case srcY           = 3062
+    case srcRot         = 3063
+    case flipMode       = 3064
+    case mirrorMode     = 3065
+    case multiN         = 3066
+    case kaleido        = 3067
+    case kaleidoN       = 3068
+    case kaleidoRot     = 3069
+    case kaleidoX       = 3070
+    case kaleidoY       = 3071
+    case edgeMode       = 3072
 }

@@ -1,46 +1,44 @@
+// BENDRColourRenderer.swift — Metal Render Pipeline for BENDR Colour
+
 import Foundation
 import Metal
+import FxPlug
 
-class BENDRColourRenderer {
-    var device: MTLDevice
-    var commandQueue: MTLCommandQueue
-    var pipelineState: MTLComputePipelineState
-    
-    init?(device: MTLDevice) {
-        self.device = device
-        guard let queue = device.makeCommandQueue() else { return nil }
-        self.commandQueue = queue
-        
-        do {
-            let library = try device.makeDefaultLibrary(bundle: Bundle(for: BENDRColourRenderer.self))
-            guard let function = library.makeFunction(name: "bendrColour") else { return nil }
-            self.pipelineState = try device.makeComputePipelineState(function: function)
-        } catch {
-            print("Failed to create pipeline state: \(error)")
-            return nil
+enum BENDRColourRenderer {
+
+    static func render(destination: FxImageTile, source: FxImageTile, params: ColourParams) throws {
+        guard let context = BendrMetalContext.context(for: destination.deviceRegistryID) else {
+            throw BendrError.renderFailed("Unable to obtain Metal context")
         }
-    }
-    
-    func render(inTex: MTLTexture, outTex: MTLTexture, params: ColourParams) {
-        guard let commandBuffer = commandQueue.makeCommandBuffer(),
-              let encoder = commandBuffer.makeComputeCommandEncoder() else { return }
-        
-        encoder.setComputePipelineState(pipelineState)
-        encoder.setTexture(inTex, index: 0)
-        encoder.setTexture(outTex, index: 1)
-        
-        var p = params
-        p.res = SIMD2<Float>(Float(outTex.width), Float(outTex.height))
-        encoder.setBytes(&p, length: MemoryLayout<ColourParams>.stride, index: 0)
-        
-        let w = pipelineState.threadExecutionWidth
-        let h = pipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadsPerThreadgroup = MTLSize(width: w, height: h, depth: 1)
-        let threadsPerGrid = MTLSize(width: outTex.width, height: outTex.height, depth: 1)
-        
-        encoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+
+        guard let srcTexture = source.metalTexture(for: context.device),
+              let dstTexture = destination.metalTexture(for: context.device) else {
+            throw BendrError.textureCreationFailed
+        }
+
+        guard let library = try? context.device.makeDefaultLibrary(bundle: Bundle(for: BENDRColourFilter.self)) ?? context.device.makeDefaultLibrary() else {
+            throw BendrError.shaderNotFound("Default library for BENDRColour")
+        }
+
+        let pipeline = try context.computePipeline(named: "bendrColour", from: library)
+
+        guard let commandBuffer = context.makeCommandBuffer(),
+              let encoder = commandBuffer.makeComputeCommandEncoder() else {
+            throw BendrError.commandBufferFailed
+        }
+
+        encoder.setComputePipelineState(pipeline)
+        encoder.setTexture(srcTexture, index: 0)
+        encoder.setTexture(dstTexture, index: 1)
+
+        var mutableParams = params
+        mutableParams.res = SIMD2<Float>(Float(dstTexture.width), Float(dstTexture.height))
+        encoder.setBytes(&mutableParams, length: MemoryLayout<ColourParams>.stride, index: 0)
+
+        BendrRender.dispatch(encoder: encoder, pipeline: pipeline, width: dstTexture.width, height: dstTexture.height)
         encoder.endEncoding()
-        
+
         commandBuffer.commit()
+        commandBuffer.waitUntilCompleted()
     }
 }

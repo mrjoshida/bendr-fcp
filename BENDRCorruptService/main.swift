@@ -1,4 +1,4 @@
 import Foundation
-// import FxPlug
+import FxPlug
 
-// FxPrincipal.startServicePrincipal()
+FxPrincipal.startServicePrincipal()

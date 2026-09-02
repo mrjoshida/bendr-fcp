@@ -1,5 +1,7 @@
+// BENDRColourParams.swift — Parameter declarations and state model for BENDR Colour
+
 import Foundation
-import CoreMedia
+import FxPlug
 
 struct ColourParams: BendrParams {
     // Primary Color
@@ -78,4 +80,69 @@ struct ColourParams: BendrParams {
     // System
     var time: Float = 0.0
     var res: SIMD2<Float> = SIMD2<Float>(1920.0, 1080.0)
+}
+
+enum ColourParamID: UInt32 {
+    case groupPrimary       = 4001
+    case rGain              = 4002
+    case gGain              = 4003
+    case bGain              = 4004
+    case saturation         = 4005
+    case hue                = 4006
+    case brightness         = 4007
+    case contrast           = 4008
+
+    case groupEffects       = 4010
+    case posterize          = 4011
+    case solarize           = 4012
+    case negative           = 4013
+    case negMode            = 4014
+    case monoCol            = 4015
+    case monoHue            = 4016
+    case colorPass          = 4017
+    case passHue            = 4018
+    case passWidth          = 4019
+    case silhouette         = 4020
+    case silThresh          = 4021
+    case silHue             = 4022
+    case glow               = 4023
+
+    case groupEdge          = 4030
+    case findEdge           = 4031
+    case edgeHue            = 4032
+    case emboss             = 4033
+    case embossDir          = 4034
+    case diffAmt            = 4035
+    case diffScale          = 4036
+    case diffPolar          = 4037
+    case ampAmt             = 4038
+    case ampBands           = 4039
+
+    case groupEnhancer      = 4040
+    case colorize           = 4041
+    case colorBands         = 4042
+    case colorSweep         = 4043
+    case rgbSep             = 4044
+    case invFlick           = 4045
+
+    case groupContour       = 4050
+    case contour            = 4051
+    case contourBands       = 4052
+    case contourWidth       = 4053
+    case contourHue         = 4054
+    case contourFill        = 4055
+    case lumaSteps          = 4056
+    case stepCount          = 4057
+    case dither             = 4058
+
+    case groupModulation    = 4060
+    case mline              = 4061
+    case mlineScale         = 4062
+    case mlineGain          = 4063
+    case mlineBias          = 4064
+    case mlineFb            = 4065
+    case mlineWin           = 4066
+    case mlineTint          = 4067
+    case mlineCol           = 4068
+    case mlineSerp          = 4069
 }

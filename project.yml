@@ -11,9 +11,10 @@ settings:
   base:
     MACOSX_DEPLOYMENT_TARGET: "13.0"
     SWIFT_VERSION: "5.9"
-    # FxPlug framework lives inside FCP.app
+    # FxPlug framework headers and runtime
     FRAMEWORK_SEARCH_PATHS:
-      - "/Applications/Final Cut Pro.app/Contents/Frameworks"
+      - "$(SRCROOT)/Frameworks"
+      - '"/Applications/Final Cut Pro.app/Contents/Frameworks"'
       - "$(inherited)"
     # Link against FxPlug
     OTHER_LDFLAGS:
@@ -22,7 +23,7 @@ settings:
       - "$(inherited)"
     # Rpath so the XPC service can find FxPlug at runtime
     LD_RUNPATH_SEARCH_PATHS:
-      - "/Applications/Final Cut Pro.app/Contents/Frameworks"
+      - '"/Applications/Final Cut Pro.app/Contents/Frameworks"'
       - "$(inherited)"
 
 # --- File groups ---

@@ -8,7 +8,7 @@ struct SyncTuple {
     var hfLoss: Float
 }
 
-public class BENDRVHSPLL {
+class BENDRVHSPLL {
     
     // Deterministic hash functions
     static func pcg_hash(_ input: UInt32) -> UInt32 {
@@ -22,8 +22,8 @@ public class BENDRVHSPLL {
     }
 
     static func h21(_ x: Float, _ y: Float) -> Float {
-        let qx = UInt32(bitPattern: x)
-        let qy = UInt32(bitPattern: y)
+        let qx = x.bitPattern
+        let qy = y.bitPattern
         return hashToFloat(pcg_hash(qx ^ pcg_hash(qy)))
     }
     
@@ -31,12 +31,12 @@ public class BENDRVHSPLL {
         let i = floor(x)
         let f = x - i
         let sm = f * f * (3.0 - 2.0 * f)
-        let h0 = hashToFloat(pcg_hash(UInt32(bitPattern: Float(i))))
-        let h1 = hashToFloat(pcg_hash(UInt32(bitPattern: Float(i + 1.0))))
+        let h0 = hashToFloat(pcg_hash(Float(i).bitPattern))
+        let h1 = hashToFloat(pcg_hash(Float(i + 1.0).bitPattern))
         return h0 * (1.0 - sm) + h1 * sm
     }
     
-    public static func updateSyncModel(t: Float, params: BENDRVHSParams) -> [SyncTuple] {
+    static func updateSyncModel(t: Float, params: VHSParams) -> [SyncTuple] {
         let rows = Int(params.rows)
         var results = [SyncTuple](repeating: SyncTuple(displacement: 0, agcGain: 1, noiseAmp: 0, hfLoss: 0), count: rows)
         

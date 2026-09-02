@@ -14,6 +14,18 @@ public class BENDRScanFilter: NSObject, FxTileableEffect {
         super.init()
     }
     
+    public func properties(_ properties: AutoreleasingUnsafeMutablePointer<NSDictionary>?) throws {
+        properties?.pointee = [
+            kFxPropertyKey_MayRemapTime: true,
+            kFxPropertyKey_PixelTransformSupport: kFxPixelTransform_Supported,
+            kFxPropertyKey_NeedsFullBuffer: true
+        ] as NSDictionary
+    }
+    
+    public func scheduleInputs(_ request: inout FxScheduleInputsRequest, with pluginState: Data?, at time: CMTime) throws {
+        request.addInput(0, with: time)
+    }
+    
     public func addParameters() throws {
         guard let parmsApi = apiManager.api(for: FxParameterCreationAPI_v5.self) as? FxParameterCreationAPI_v5 else {
             return
@@ -60,7 +72,7 @@ public class BENDRScanFilter: NSObject, FxTileableEffect {
         var p = ScanParams()
         var fVal: Double = 0.0
         var iVal: Int32 = 0
-        var bVal: Bool = false
+        var bVal = ObjCBool(false)
         
         if parmsApi.getFloatValue(&fVal, fromParameter: ScanParamID.scanAmt.rawValue, at: renderTime) { p.scanAmt = Float(fVal) }
         if parmsApi.getIntValue(&iVal, fromParameter: ScanParamID.scanLines.rawValue, at: renderTime) { p.lines = Float(iVal) }
@@ -80,8 +92,8 @@ public class BENDRScanFilter: NSObject, FxTileableEffect {
         if parmsApi.getFloatValue(&fVal, fromParameter: ScanParamID.scanWobFreq.rawValue, at: renderTime) { p.scanWobFreq = Float(fVal) }
         if parmsApi.getFloatValue(&fVal, fromParameter: ScanParamID.scanWobLock.rawValue, at: renderTime) { p.scanWobLock = Float(fVal) }
         if parmsApi.getFloatValue(&fVal, fromParameter: ScanParamID.scanLissa.rawValue, at: renderTime) { p.scanLissa = Float(fVal) }
-        if parmsApi.getBoolValue(&bVal, fromParameter: ScanParamID.scanRevH.rawValue, at: renderTime) { p.scanRevH = bVal ? 1.0 : 0.0 }
-        if parmsApi.getBoolValue(&bVal, fromParameter: ScanParamID.scanRevV.rawValue, at: renderTime) { p.scanRevV = bVal ? 1.0 : 0.0 }
+        if parmsApi.getBoolValue(&bVal, fromParameter: ScanParamID.scanRevH.rawValue, at: renderTime) { p.scanRevH = bVal.boolValue ? 1.0 : 0.0 }
+        if parmsApi.getBoolValue(&bVal, fromParameter: ScanParamID.scanRevV.rawValue, at: renderTime) { p.scanRevV = bVal.boolValue ? 1.0 : 0.0 }
         
         if parmsApi.getFloatValue(&fVal, fromParameter: ScanParamID.scanMono.rawValue, at: renderTime) { p.scanMono = Float(fVal) }
         if parmsApi.getFloatValue(&fVal, fromParameter: ScanParamID.scanHue.rawValue, at: renderTime) { p.scanHue = Float(fVal) }
