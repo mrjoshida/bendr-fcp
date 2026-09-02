@@ -64,6 +64,7 @@
 			<string>Video-mixer wipes, slide &amp; keyer transition</string>
 			<key>protocolNames</key>
 			<array>
+				<string>FxTileableEffect</string>
 				<string>FxTransition</string>
 			</array>
 			<key>uuid</key>

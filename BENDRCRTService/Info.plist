@@ -64,7 +64,7 @@
 			<string>CRT monitor scanlines, shadow mask &amp; phosphor</string>
 			<key>protocolNames</key>
 			<array>
-				<string>FxFilter</string>
+				<string>FxTileableEffect</string>
 			</array>
 			<key>uuid</key>
 			<string>B4C2D1E0-4567-4890-ABCD-EF0123456781</string>

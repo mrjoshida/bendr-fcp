@@ -64,7 +64,7 @@
 			<string>Recursive video feedback tunnels</string>
 			<key>protocolNames</key>
 			<array>
-				<string>FxFilter</string>
+				<string>FxTileableEffect</string>
 			</array>
 			<key>uuid</key>
 			<string>B4C2D1E0-4567-4890-ABCD-EF0123456782</string>

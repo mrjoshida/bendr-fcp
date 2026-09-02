@@ -64,7 +64,7 @@
 			<string>Lens aberration, halation, bloom &amp; camcorder HUD</string>
 			<key>protocolNames</key>
 			<array>
-				<string>FxFilter</string>
+				<string>FxTileableEffect</string>
 			</array>
 			<key>uuid</key>
 			<string>F8A2B3C4-D5E6-4789-8A1B-2C3D4E5F6A77</string>
