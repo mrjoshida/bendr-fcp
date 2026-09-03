@@ -29,7 +29,6 @@ public class BENDRSignalLabFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Raster Glitch & Displacement
-        parmsApi.startParameterSubGroup("Raster Glitch & Displacement", parameterID: SignalLabParamID.groupRaster.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Sparse Jitter", parameterID: SignalLabParamID.sparseJit.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Jitter Gate", parameterID: SignalLabParamID.jitThresh.rawValue, defaultValue: 0.7, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "FM Wobble", parameterID: SignalLabParamID.fmAmt.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -40,10 +39,8 @@ public class BENDRSignalLabFilter: NSObject, FxTileableEffect {
             "Vertical"
         ], parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Row Smear", parameterID: SignalLabParamID.rowSmear.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 2: Codec & Signal Breakdown
-        parmsApi.startParameterSubGroup("Codec & Signal Breakdown", parameterID: SignalLabParamID.groupSignal.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Filter Avalanche", parameterID: SignalLabParamID.pngAmt.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Avalanche Axis", parameterID: SignalLabParamID.pngDir.rawValue, defaultValue: 0, menuEntries: [
             "Sub (Horizontal)",
@@ -57,10 +54,8 @@ public class BENDRSignalLabFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Snow Clumping", parameterID: SignalLabParamID.snowAniso.rawValue, defaultValue: 0.4, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Moire", parameterID: SignalLabParamID.moire.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Moire Frequency", parameterID: SignalLabParamID.moireFreq.rawValue, defaultValue: 0.4, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 3: Quantization & Field Mod
-        parmsApi.startParameterSubGroup("Quantization & Field Mod", parameterID: SignalLabParamID.groupQuant.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "1-Bit Crush", parameterID: SignalLabParamID.bitCrush.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Crush Scale", parameterID: SignalLabParamID.bitScale.rawValue, defaultValue: 0.4, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Band Keyer", parameterID: SignalLabParamID.bandKey.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -76,7 +71,6 @@ public class BENDRSignalLabFilter: NSObject, FxTileableEffect {
         ], parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Field > Warp", parameterID: SignalLabParamID.fieldWarp.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Field > Hue", parameterID: SignalLabParamID.fieldHue.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
@@ -124,18 +118,11 @@ public class BENDRSignalLabFilter: NSObject, FxTileableEffect {
         pluginState.pointee = try p.encode() as NSData
     }
 
-    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [Any], destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
-        // FCP sends FxImageTile objects at runtime despite the protocol declaring FxImage
-        if let tile = sourceImages.first as? FxImageTile {
-            destinationImageRect.pointee = tile.imagePixelBounds
-        } else if let img = sourceImages.first as? FxImage {
-            destinationImageRect.pointee = img.bounds
-        } else {
-            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: 1920, top: 1080)
-        }
+        public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImageTile], destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
+        destinationImageRect.pointee = sourceImages.first?.imagePixelBounds ?? destinationImage.imagePixelBounds
     }
 
-    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [Any], destinationTileRect: FxRect, destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
+        public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImageTile], destinationTileRect: FxRect, destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
         sourceTileRect.pointee = destinationTileRect
     }
 

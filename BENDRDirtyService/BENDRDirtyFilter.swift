@@ -4,6 +4,7 @@ import Foundation
 import FxPlug
 import CoreMedia
 
+
 @objc(BENDRDirtyFilter)
 public class BENDRDirtyFilter: NSObject, FxTileableEffect {
 
@@ -29,18 +30,14 @@ public class BENDRDirtyFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Fault Engine
-        parmsApi.startParameterSubGroup("Fault Engine", parameterID: DirtyParamID.groupEngine.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Dirt Amount", parameterID: DirtyParamID.mixDirt.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Clock Rate", parameterID: DirtyParamID.mixDirtRate.rawValue, defaultValue: 0.3, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 2: Fault Manifestation
-        parmsApi.startParameterSubGroup("Fault Manifestation", parameterID: DirtyParamID.groupManifestation.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Timebase Knock", parameterID: DirtyParamID.mixDirtKnock.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Line Dropouts", parameterID: DirtyParamID.mixDirtDrop.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Cut / Flash", parameterID: DirtyParamID.mixDirtCut.rawValue, defaultValue: 0.4, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Transient Noise", parameterID: DirtyParamID.mixDirtNoise.rawValue, defaultValue: 0.35, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
@@ -66,18 +63,11 @@ public class BENDRDirtyFilter: NSObject, FxTileableEffect {
         pluginState.pointee = try p.encode() as NSData
     }
 
-    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [Any], destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
-        // FCP sends FxImageTile objects at runtime despite the protocol declaring FxImage
-        if let tile = sourceImages.first as? FxImageTile {
-            destinationImageRect.pointee = tile.imagePixelBounds
-        } else if let img = sourceImages.first as? FxImage {
-            destinationImageRect.pointee = img.bounds
-        } else {
-            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: 1920, top: 1080)
-        }
+        public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImageTile], destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
+        destinationImageRect.pointee = sourceImages.first?.imagePixelBounds ?? destinationImage.imagePixelBounds
     }
 
-    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [Any], destinationTileRect: FxRect, destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
+        public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImageTile], destinationTileRect: FxRect, destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
         sourceTileRect.pointee = destinationTileRect
     }
 
@@ -87,7 +77,10 @@ public class BENDRDirtyFilter: NSObject, FxTileableEffect {
               let srcTile = sourceImages.first else {
             return
         }
-
-        try BENDRDirtyRenderer.render(destination: destinationImage, source: srcTile, params: params)
+        do {
+            try BENDRDirtyRenderer.render(destination: destinationImage, source: srcTile, params: params)
+        } catch {
+            throw error
+        }
     }
 }

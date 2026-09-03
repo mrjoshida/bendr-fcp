@@ -128,17 +128,17 @@ static NSString * const _Nonnull kFxPropertyKey_NeedsFullBuffer = @"kFxPropertyK
               error:(NSError * _Nullable * _Nullable)error;
 
 - (BOOL)destinationImageRect:(FxRect * _Nonnull)destinationImageRect
-                 sourceImages:(NSArray * _Nonnull)sourceImages
-             destinationImage:(id _Nonnull)destinationImage
+                 sourceImages:(NSArray<FxImageTile *> * _Nonnull)sourceImages
+             destinationImage:(FxImageTile * _Nonnull)destinationImage
                   pluginState:(NSData * _Nullable)pluginState
                        atTime:(CMTime)renderTime
                         error:(NSError * _Nullable * _Nullable)error;
 
 - (BOOL)sourceTileRect:(FxRect * _Nonnull)sourceTileRect
        sourceImageIndex:(NSUInteger)sourceImageIndex
-           sourceImages:(NSArray * _Nonnull)sourceImages
+           sourceImages:(NSArray<FxImageTile *> * _Nonnull)sourceImages
     destinationTileRect:(FxRect)destinationTileRect
-       destinationImage:(id _Nonnull)destinationImage
+       destinationImage:(FxImageTile * _Nonnull)destinationImage
             pluginState:(NSData * _Nullable)pluginState
                  atTime:(CMTime)renderTime
                   error:(NSError * _Nullable * _Nullable)error;

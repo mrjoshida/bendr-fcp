@@ -29,7 +29,6 @@ public class BENDRSpatialFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Framing & Geometry
-        parmsApi.startParameterSubGroup("Framing & Geometry", parameterID: SpatialParamID.groupFraming.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Zoom", parameterID: SpatialParamID.srcZoom.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Pan X", parameterID: SpatialParamID.srcX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Pan Y", parameterID: SpatialParamID.srcY.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -41,25 +40,19 @@ public class BENDRSpatialFilter: NSObject, FxTileableEffect {
             "None", "Mirror Horizontal", "Mirror Vertical", "Mirror 4-Way"
         ], parameterFlags: 0)
         parmsApi.addIntSlider(withName: "Multi-Grid", parameterID: SpatialParamID.multiN.rawValue, defaultValue: 1, parameterMin: 1, parameterMax: 8, sliderMin: 1, sliderMax: 8, delta: 1, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 2: Kaleidoscope Symmetries
-        parmsApi.startParameterSubGroup("Kaleidoscope Symmetries", parameterID: SpatialParamID.groupKaleido.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Kaleidoscope", parameterID: SpatialParamID.kaleido.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addIntSlider(withName: "Fold Count", parameterID: SpatialParamID.kaleidoN.rawValue, defaultValue: 3, parameterMin: 2, parameterMax: 12, sliderMin: 2, sliderMax: 12, delta: 1, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Fold Spin", parameterID: SpatialParamID.kaleidoRot.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Fold Center X", parameterID: SpatialParamID.kaleidoX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Fold Center Y", parameterID: SpatialParamID.kaleidoY.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 3: Camera Shake
-        parmsApi.startParameterSubGroup("Camera Shake", parameterID: SpatialParamID.groupShake.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Shake Intensity", parameterID: SpatialParamID.shake.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Shake Rate", parameterID: SpatialParamID.shakeRate.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 4: Time Displacement
-        parmsApi.startParameterSubGroup("Time Displacement", parameterID: SpatialParamID.groupTimeDisp.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Time Displace", parameterID: SpatialParamID.tdAmt.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Displacement Map", parameterID: SpatialParamID.tdMap.rawValue, defaultValue: 0, menuEntries: [
             "Slitscan Vertical", "Sweep Horizontal", "Luminance Lag", "Radial Lag", "Failing TBC Scanlines"
@@ -67,7 +60,6 @@ public class BENDRSpatialFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Frame Reach", parameterID: SpatialParamID.tdSpread.rawValue, defaultValue: 0.7, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Interpolation", parameterID: SpatialParamID.tdSoft.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Map Drift", parameterID: SpatialParamID.tdWarp.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
@@ -115,18 +107,11 @@ public class BENDRSpatialFilter: NSObject, FxTileableEffect {
         pluginState.pointee = try p.encode() as NSData
     }
 
-    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [Any], destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
-        // FCP sends FxImageTile objects at runtime despite the protocol declaring FxImage
-        if let tile = sourceImages.first as? FxImageTile {
-            destinationImageRect.pointee = tile.imagePixelBounds
-        } else if let img = sourceImages.first as? FxImage {
-            destinationImageRect.pointee = img.bounds
-        } else {
-            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: 1920, top: 1080)
-        }
+        public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImageTile], destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
+        destinationImageRect.pointee = sourceImages.first?.imagePixelBounds ?? destinationImage.imagePixelBounds
     }
 
-    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [Any], destinationTileRect: FxRect, destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
+        public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImageTile], destinationTileRect: FxRect, destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
         sourceTileRect.pointee = destinationTileRect
     }
 

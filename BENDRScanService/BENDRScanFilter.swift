@@ -32,37 +32,29 @@ public class BENDRScanFilter: NSObject, FxTileableEffect {
             return
         }
         
-        parmsApi.startParameterSubGroup("Deflection & Raster", parameterID: ScanParamID.groupDeflection.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Scan Displace", parameterID: ScanParamID.scanAmt.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addIntSlider(withName: "Scan Lines", parameterID: ScanParamID.scanLines.rawValue, defaultValue: 320, parameterMin: 60, parameterMax: 720, sliderMin: 60, sliderMax: 720, delta: 1, parameterFlags: 0)
         parmsApi.addIntSlider(withName: "Scan Detail", parameterID: ScanParamID.scanSamples.rawValue, defaultValue: 256, parameterMin: 64, parameterMax: 640, sliderMin: 64, sliderMax: 640, delta: 1, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Beam Width", parameterID: ScanParamID.scanWidth.rawValue, defaultValue: 0.12, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Velocity Gain", parameterID: ScanParamID.scanVel.rawValue, defaultValue: 0.8, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Scan Level", parameterID: ScanParamID.scanGain.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 3.0, sliderMin: 0.0, sliderMax: 3.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
         
-        parmsApi.startParameterSubGroup("3D & Geometry", parameterID: ScanParamID.group3D.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Tilt X", parameterID: ScanParamID.scanTiltX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Tilt Y", parameterID: ScanParamID.scanTiltY.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Perspective", parameterID: ScanParamID.scanPersp.rawValue, defaultValue: 0.3, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "S-Curve", parameterID: ScanParamID.scanCurve.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Raster Skew", parameterID: ScanParamID.scanSkew.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Raster Collapse", parameterID: ScanParamID.scanCollapse.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
         
-        parmsApi.startParameterSubGroup("Modulation & Sweep", parameterID: ScanParamID.groupModulation.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Wobble", parameterID: ScanParamID.scanWobAmt.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Wobble Freq", parameterID: ScanParamID.scanWobFreq.rawValue, defaultValue: 0.25, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Wobble Lock", parameterID: ScanParamID.scanWobLock.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Lissajous", parameterID: ScanParamID.scanLissa.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addToggleButton(withName: "Reverse H Sweep", parameterID: ScanParamID.scanRevH.rawValue, defaultValue: false, parameterFlags: 0)
         parmsApi.addToggleButton(withName: "Reverse V Sweep", parameterID: ScanParamID.scanRevV.rawValue, defaultValue: false, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
         
-        parmsApi.startParameterSubGroup("Color Mode", parameterID: ScanParamID.groupColor.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Monochrome", parameterID: ScanParamID.scanMono.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Colorise", parameterID: ScanParamID.scanHue.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
     }
     
     public func pluginState(_ pluginState: AutoreleasingUnsafeMutablePointer<NSData?>, at renderTime: CMTime, quality qualityLevel: UInt) throws {
@@ -103,18 +95,11 @@ public class BENDRScanFilter: NSObject, FxTileableEffect {
         pluginState.pointee = try p.encode() as NSData
     }
     
-    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [Any], destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
-        // FCP sends FxImageTile objects at runtime despite the protocol declaring FxImage
-        if let tile = sourceImages.first as? FxImageTile {
-            destinationImageRect.pointee = tile.imagePixelBounds
-        } else if let img = sourceImages.first as? FxImage {
-            destinationImageRect.pointee = img.bounds
-        } else {
-            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: 1920, top: 1080)
-        }
+        public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImageTile], destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
+        destinationImageRect.pointee = sourceImages.first?.imagePixelBounds ?? destinationImage.imagePixelBounds
     }
     
-    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [Any], destinationTileRect: FxRect, destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
+        public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImageTile], destinationTileRect: FxRect, destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
         sourceTileRect.pointee = destinationTileRect
     }
     

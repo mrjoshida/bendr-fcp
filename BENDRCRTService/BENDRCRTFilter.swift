@@ -29,7 +29,6 @@ public class BENDRCRTFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Monitor & Geometry
-        parmsApi.startParameterSubGroup("Monitor & Geometry", parameterID: CRTParamID.groupMonitor.rawValue, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Display Type", parameterID: CRTParamID.outModel.rawValue, defaultValue: 1, menuEntries: [
             "None",
             "Aperture Grille (Trinitron)",
@@ -42,35 +41,28 @@ public class BENDRCRTFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Screen Curvature", parameterID: CRTParamID.curvature.rawValue, defaultValue: 0.15, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Corner Rounding", parameterID: CRTParamID.cornerRound.rawValue, defaultValue: 0.1, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Vignette", parameterID: CRTParamID.vignette.rawValue, defaultValue: 0.3, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 2: Phosphor & Optics
-        parmsApi.startParameterSubGroup("Phosphor & Optics", parameterID: CRTParamID.groupPhosphor.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Phosphor Trail", parameterID: CRTParamID.phosphor.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Beam Bloom", parameterID: CRTParamID.bloom.rawValue, defaultValue: 0.3, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Bloom Radius", parameterID: CRTParamID.bloomRad.rawValue, defaultValue: 0.4, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Halation", parameterID: CRTParamID.halation.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 3: Color & Picture
-        parmsApi.startParameterSubGroup("Color & Picture", parameterID: CRTParamID.groupPicture.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Gamma", parameterID: CRTParamID.outGamma.rawValue, defaultValue: 1.0, parameterMin: 0.2, parameterMax: 2.5, sliderMin: 0.2, sliderMax: 2.5, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Brightness", parameterID: CRTParamID.outBright.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Contrast", parameterID: CRTParamID.outContrast.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 2.0, sliderMin: 0.0, sliderMax: 2.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Saturation", parameterID: CRTParamID.outSat.rawValue, defaultValue: 1.0, parameterMin: 0.0, parameterMax: 2.0, sliderMin: 0.0, sliderMax: 2.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Color Warmth", parameterID: CRTParamID.outWarmth.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "White Clip", parameterID: CRTParamID.whiteClip.rawValue, defaultValue: 1.0, parameterMin: 0.5, parameterMax: 1.5, sliderMin: 0.5, sliderMax: 1.5, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 4: Glass & Overlays
-        parmsApi.startParameterSubGroup("Glass & Overlays", parameterID: CRTParamID.groupOverlays.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Bezel Frame", parameterID: CRTParamID.bezel.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Glass Reflection", parameterID: CRTParamID.glassRefl.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Dust Particles", parameterID: CRTParamID.dust.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Surface Scratches", parameterID: CRTParamID.scratches.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Phosphor Grain", parameterID: CRTParamID.grain.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "OSD Channel", parameterID: CRTParamID.osdShow.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
@@ -121,18 +113,11 @@ public class BENDRCRTFilter: NSObject, FxTileableEffect {
         pluginState.pointee = try p.encode() as NSData
     }
 
-    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [Any], destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
-        // FCP sends FxImageTile objects at runtime despite the protocol declaring FxImage
-        if let tile = sourceImages.first as? FxImageTile {
-            destinationImageRect.pointee = tile.imagePixelBounds
-        } else if let img = sourceImages.first as? FxImage {
-            destinationImageRect.pointee = img.bounds
-        } else {
-            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: 1920, top: 1080)
-        }
+        public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImageTile], destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
+        destinationImageRect.pointee = sourceImages.first?.imagePixelBounds ?? destinationImage.imagePixelBounds
     }
 
-    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [Any], destinationTileRect: FxRect, destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
+        public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImageTile], destinationTileRect: FxRect, destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
         sourceTileRect.pointee = destinationTileRect
     }
 

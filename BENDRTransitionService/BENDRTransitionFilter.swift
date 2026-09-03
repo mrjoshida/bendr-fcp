@@ -29,7 +29,6 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Transition & Blend
-        parmsApi.startParameterSubGroup("Transition & Blend", parameterID: TransitionParamID.groupTransition.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Transition Progress", parameterID: TransitionParamID.abMix.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Transition Type", parameterID: TransitionParamID.mixMode.rawValue, defaultValue: 0, menuEntries: [
             "Cross Dissolve",
@@ -58,10 +57,8 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
             "Vivid Light", "Pin Light", "Color Dodge", "Color Burn", "Divide", "Wrap Add",
             "XOR Logic", "AND Logic", "Hue", "Saturation", "Color", "Luminosity"
         ], parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 2: Wipe Geometry
-        parmsApi.startParameterSubGroup("Wipe Geometry", parameterID: TransitionParamID.groupWipe.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Wipe Softness", parameterID: TransitionParamID.wipeSoft.rawValue, defaultValue: 0.03, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Wipe Frequency", parameterID: TransitionParamID.wipeDetail.rawValue, defaultValue: 0.3, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Center X", parameterID: TransitionParamID.wipeX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -72,10 +69,8 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
             "White", "Yellow", "Cyan", "Green", "Magenta", "Red", "Blue", "Black"
         ], parameterFlags: 0)
         parmsApi.addIntSlider(withName: "Multi-Tiling", parameterID: TransitionParamID.wipeRep.rawValue, defaultValue: 1, parameterMin: 1, parameterMax: 4, sliderMin: 1, sliderMax: 4, delta: 1, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 3: Keyer & Matte
-        parmsApi.startParameterSubGroup("Keyer & Matte", parameterID: TransitionParamID.groupKey.rawValue, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Key Mode", parameterID: TransitionParamID.mixKey.rawValue, defaultValue: 0, menuEntries: [
             "Off", "Luma White", "Luma Black", "Chroma Key"
         ], parameterFlags: 0)
@@ -90,7 +85,6 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
             "White", "Yellow", "Cyan", "Green", "Magenta", "Red", "Blue", "Black"
         ], parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Key Shadow", parameterID: TransitionParamID.mixKeyShadow.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
@@ -136,18 +130,11 @@ public class BENDRTransitionFilter: NSObject, FxTileableEffect {
         pluginState.pointee = try p.encode() as NSData
     }
 
-    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [Any], destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
-        // FCP sends FxImageTile objects at runtime despite the protocol declaring FxImage
-        if let tile = sourceImages.first as? FxImageTile {
-            destinationImageRect.pointee = tile.imagePixelBounds
-        } else if let img = sourceImages.first as? FxImage {
-            destinationImageRect.pointee = img.bounds
-        } else {
-            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: 1920, top: 1080)
-        }
+        public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImageTile], destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
+        destinationImageRect.pointee = sourceImages.first?.imagePixelBounds ?? destinationImage.imagePixelBounds
     }
 
-    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [Any], destinationTileRect: FxRect, destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
+        public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImageTile], destinationTileRect: FxRect, destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
         sourceTileRect.pointee = destinationTileRect
     }
 

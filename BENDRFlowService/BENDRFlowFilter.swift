@@ -29,7 +29,6 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Vector Field & Advection
-        parmsApi.startParameterSubGroup("Vector Field & Advection", parameterID: FlowParamID.groupField.rawValue, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Vector Field", parameterID: FlowParamID.flowField.rawValue, defaultValue: 0, menuEntries: [
             "Motion (Optical Flow)",
             "Contour Gradient",
@@ -47,10 +46,8 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
             "Wrap / Repeat",
             "Mirror"
         ], parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 2: Mosh & Persistence
-        parmsApi.startParameterSubGroup("Mosh & Persistence", parameterID: FlowParamID.groupPersistence.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Mosh Hold", parameterID: FlowParamID.mosh.rawValue, defaultValue: 0.7, parameterMin: 0.0, parameterMax: 0.99, sliderMin: 0.0, sliderMax: 0.99, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Mosh Gate", parameterID: FlowParamID.moshGate.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Time Shear", parameterID: FlowParamID.timeGrad.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -58,20 +55,16 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
             "Vertical",
             "Horizontal"
         ], parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 3: Melt & Swirl Dynamics
-        parmsApi.startParameterSubGroup("Melt & Swirl Dynamics", parameterID: FlowParamID.groupDynamics.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Gravity Melt", parameterID: FlowParamID.melt.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Melt Angle", parameterID: FlowParamID.meltDir.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Melt Gate", parameterID: FlowParamID.meltGate.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Swirl Turbulence", parameterID: FlowParamID.swirl.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Swirl Scale", parameterID: FlowParamID.swirlScale.rawValue, defaultValue: 0.18, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Swirl Speed", parameterID: FlowParamID.swirlSpeed.rawValue, defaultValue: 0.08, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 4: Glitch & Texture
-        parmsApi.startParameterSubGroup("Glitch & Texture", parameterID: FlowParamID.groupGlitch.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Vector Trash", parameterID: FlowParamID.moshBlock.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Trash Block Size", parameterID: FlowParamID.moshBlockSize.rawValue, defaultValue: 0.68, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Trash Rate", parameterID: FlowParamID.moshRate.rawValue, defaultValue: 0.13, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -81,7 +74,6 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Re-Sharpen", parameterID: FlowParamID.flowSharp.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Hue Shift / Pass", parameterID: FlowParamID.flowHue.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Decay / Pass", parameterID: FlowParamID.flowFade.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
@@ -135,18 +127,11 @@ public class BENDRFlowFilter: NSObject, FxTileableEffect {
         pluginState.pointee = try p.encode() as NSData
     }
 
-    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [Any], destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
-        // FCP sends FxImageTile objects at runtime despite the protocol declaring FxImage
-        if let tile = sourceImages.first as? FxImageTile {
-            destinationImageRect.pointee = tile.imagePixelBounds
-        } else if let img = sourceImages.first as? FxImage {
-            destinationImageRect.pointee = img.bounds
-        } else {
-            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: 1920, top: 1080)
-        }
+        public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImageTile], destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
+        destinationImageRect.pointee = sourceImages.first?.imagePixelBounds ?? destinationImage.imagePixelBounds
     }
 
-    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [Any], destinationTileRect: FxRect, destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
+        public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImageTile], destinationTileRect: FxRect, destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
         sourceTileRect.pointee = destinationTileRect
     }
 

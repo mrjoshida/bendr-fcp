@@ -29,7 +29,6 @@ public class BENDRVHSFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Tape & Transport
-        parmsApi.startParameterSubGroup("Tape & Transport", parameterID: VHSParamID.groupTape.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Tape Speed", parameterID: VHSParamID.tapeSpeed.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Tracking Error", parameterID: VHSParamID.tracking.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Tracking Phase", parameterID: VHSParamID.trackPhase.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -48,10 +47,8 @@ public class BENDRVHSFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Azimuth Error", parameterID: VHSParamID.azimuth.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Gen Loss", parameterID: VHSParamID.genLoss.rawValue, defaultValue: 0.1, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Gen Count", parameterID: VHSParamID.genCount.rawValue, defaultValue: 1.0, parameterMin: 1.0, parameterMax: 10.0, sliderMin: 1.0, sliderMax: 10.0, delta: 1.0, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 2: RF & Signal Noise
-        parmsApi.startParameterSubGroup("RF & Signal Noise", parameterID: VHSParamID.groupRF.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Chroma Bleed", parameterID: VHSParamID.chromaBleed.rawValue, defaultValue: 0.25, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Chroma Delay", parameterID: VHSParamID.chromaDelay.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Luma Bleed", parameterID: VHSParamID.lumaBleed.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -65,10 +62,8 @@ public class BENDRVHSFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Chroma Loss", parameterID: VHSParamID.chromaLoss.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Print-Through", parameterID: VHSParamID.printThru.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Tape Hiss", parameterID: VHSParamID.hiss.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 3: Sync & Timebase
-        parmsApi.startParameterSubGroup("Sync & Timebase", parameterID: VHSParamID.groupSync.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "H-Wobble", parameterID: VHSParamID.hWobble.rawValue, defaultValue: 0.05, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Wobble Freq", parameterID: VHSParamID.wobbleFreq.rawValue, defaultValue: 0.2, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Sync Tear", parameterID: VHSParamID.tear.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
@@ -76,7 +71,6 @@ public class BENDRVHSFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "V-Roll", parameterID: VHSParamID.vRoll.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Sync Jitter", parameterID: VHSParamID.jitter.rawValue, defaultValue: 0.1, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Hum Bar", parameterID: VHSParamID.humBar.rawValue, defaultValue: 0.1, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
@@ -141,18 +135,11 @@ public class BENDRVHSFilter: NSObject, FxTileableEffect {
         pluginState.pointee = try p.encode() as NSData
     }
 
-    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [Any], destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
-        // FCP sends FxImageTile objects at runtime despite the protocol declaring FxImage
-        if let tile = sourceImages.first as? FxImageTile {
-            destinationImageRect.pointee = tile.imagePixelBounds
-        } else if let img = sourceImages.first as? FxImage {
-            destinationImageRect.pointee = img.bounds
-        } else {
-            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: 1920, top: 1080)
-        }
+        public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImageTile], destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
+        destinationImageRect.pointee = sourceImages.first?.imagePixelBounds ?? destinationImage.imagePixelBounds
     }
 
-    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [Any], destinationTileRect: FxRect, destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
+        public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImageTile], destinationTileRect: FxRect, destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
         sourceTileRect.pointee = destinationTileRect
     }
 

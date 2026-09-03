@@ -29,7 +29,6 @@ public class BENDRMeltFilter: NSObject, FxTileableEffect {
         }
 
         // Group 1: Dynamics & Mode
-        parmsApi.startParameterSubGroup("Melt Dynamics", parameterID: MeltParamID.groupDynamics.rawValue, parameterFlags: 0)
         parmsApi.addPopupMenu(withName: "Melt Mode", parameterID: MeltParamID.meltMode.rawValue, defaultValue: 0, menuEntries: [
             "Edge Smear",
             "Spiral Feedback",
@@ -40,22 +39,17 @@ public class BENDRMeltFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Melt Hold", parameterID: MeltParamID.edgeHold.rawValue, defaultValue: 0.6, parameterMin: 0.0, parameterMax: 1.5, sliderMin: 0.0, sliderMax: 1.5, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Melt Width", parameterID: MeltParamID.edgeWidth.rawValue, defaultValue: 0.3, parameterMin: 0.0, parameterMax: 2.0, sliderMin: 0.0, sliderMax: 2.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Melt Creep", parameterID: MeltParamID.edgeCreep.rawValue, defaultValue: 0.35, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 2: Spatial & Spiral
-        parmsApi.startParameterSubGroup("Spatial & Spiral", parameterID: MeltParamID.groupSpatial.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Melt Swirl", parameterID: MeltParamID.edgeSwirl.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Melt Zoom", parameterID: MeltParamID.meltZoom.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Melt Angle", parameterID: MeltParamID.meltDir.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Luma Gate", parameterID: MeltParamID.meltGate.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
 
         // Group 3: Color & Diffusion
-        parmsApi.startParameterSubGroup("Color & Diffusion", parameterID: MeltParamID.groupColor.rawValue, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Melt Soften", parameterID: MeltParamID.meltSoft.rawValue, defaultValue: 0.35, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Chroma Bleed", parameterID: MeltParamID.edgeChroma.rawValue, defaultValue: 0.5, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Melt Hue Shift", parameterID: MeltParamID.meltHue.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.endParameterSubGroup()
     }
 
     public func scheduleInputs(_ scheduleInputsRequest: UnsafeMutablePointer<FxScheduleInputsRequest>, withPluginState pluginState: Data?, at requestTime: CMTime) throws {
@@ -96,18 +90,11 @@ public class BENDRMeltFilter: NSObject, FxTileableEffect {
         pluginState.pointee = try p.encode() as NSData
     }
 
-    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [Any], destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
-        // FCP sends FxImageTile objects at runtime despite the protocol declaring FxImage
-        if let tile = sourceImages.first as? FxImageTile {
-            destinationImageRect.pointee = tile.imagePixelBounds
-        } else if let img = sourceImages.first as? FxImage {
-            destinationImageRect.pointee = img.bounds
-        } else {
-            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: 1920, top: 1080)
-        }
+        public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImageTile], destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
+        destinationImageRect.pointee = sourceImages.first?.imagePixelBounds ?? destinationImage.imagePixelBounds
     }
 
-    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [Any], destinationTileRect: FxRect, destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
+        public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImageTile], destinationTileRect: FxRect, destinationImage: FxImageTile, pluginState: Data?, at renderTime: CMTime) throws {
         sourceTileRect.pointee = destinationTileRect
     }
 
