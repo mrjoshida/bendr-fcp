@@ -151,11 +151,11 @@ kernel void bendrCRT(texture2d<float, access::sample> u_tex [[texture(0)]],
     
     float model = u.outModel;
     if(model > 0.5) {
-        float lines = u.procRes.y;
+        float lines = (u.rows > 0.0 && u.rows <= 720.0) ? u.rows : 480.0;
         float fy = fract(cuv.y * lines) - 0.5;
         float bright = lum3(c);
         float w = u.beamWidth * (0.35 + 0.65 * mix(1.0, bright, u.beamShape));
-        float beam = exp(-(fy * fy) / max(0.005, w * w * 0.22));
+        float beam = exp(-(fy * fy) / max(0.008, w * w * 0.22));
         c *= mix(1.0, beam * 1.35, u.scanlines);
         c *= mix(float3(1.0), maskAt(float2(gid), model, u.maskDark), u.aperture);
         if(model > 4.5) c = mix(c, float3(lum3(c)), 0.85);
