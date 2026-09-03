@@ -32,7 +32,81 @@ PLUGINS = [
     {"name": "BENDR Optics", "uuid": "F8A2B3C4-D5E6-4789-8A1B-2C3D4E5F6A77", "type": "effect", "desc": "Lens aberration, halation, bloom & camcorder HUD"},
 ]
 
-def generate_moef_xml(plugin_name, plugin_uuid, plugin_desc):
+def get_params_for_plugin(name):
+    clean_name = name.replace(' ', '')
+    base_dir = Path(__file__).resolve().parent.parent
+    filter_file = base_dir / f"{clean_name}Service" / f"{clean_name}Filter.swift"
+    param_file = base_dir / f"{clean_name}Service" / f"{clean_name}Params.swift"
+    id_map = {}
+    if not param_file.exists() or not filter_file.exists():
+        return []
+    import re
+    with open(param_file, "r", encoding="utf-8") as fp:
+        p_text = fp.read()
+    for m in re.finditer(r'case\s+(\w+)\s*=\s*(\d+)', p_text):
+        id_map[m.group(1)] = int(m.group(2))
+    with open(filter_file, "r", encoding="utf-8") as fp:
+        f_text = fp.read()
+    params = []
+    p_float = r'addFloatSlider\(withName:\s*\"([^\"]+)\",\s*parameterID:\s*\w+ParamID\.(\w+)\.rawValue,\s*defaultValue:\s*([0-9\.\-]+)'
+    for m in re.finditer(p_float, f_text):
+        name = m.group(1)
+        enum_case = m.group(2)
+        default_val = float(m.group(3))
+        param_id = id_map.get(enum_case)
+        if param_id:
+            params.append({'name': name, 'id': param_id, 'default': default_val, 'type': 'float'})
+    p_int = r'addIntSlider\(withName:\s*\"([^\"]+)\",\s*parameterID:\s*\w+ParamID\.(\w+)\.rawValue,\s*defaultValue:\s*([0-9\-]+)'
+    for m in re.finditer(p_int, f_text):
+        name = m.group(1)
+        enum_case = m.group(2)
+        default_val = int(m.group(3))
+        param_id = id_map.get(enum_case)
+        if param_id:
+            params.append({'name': name, 'id': param_id, 'default': default_val, 'type': 'int'})
+    p_popup = r'addPopupMenu\(withName:\s*\"([^\"]+)\",\s*parameterID:\s*\w+ParamID\.(\w+)\.rawValue,\s*defaultValue:\s*(\d+)'
+    for m in re.finditer(p_popup, f_text):
+        name = m.group(1)
+        enum_case = m.group(2)
+        default_val = int(m.group(3))
+        param_id = id_map.get(enum_case)
+        if param_id:
+            params.append({'name': name, 'id': param_id, 'default': default_val, 'type': 'menu'})
+    p_toggle = r'addToggleButton\(withName:\s*\"([^\"]+)\",\s*parameterID:\s*\w+ParamID\.(\w+)\.rawValue,\s*defaultValue:\s*(true|false)'
+    for m in re.finditer(p_toggle, f_text):
+        name = m.group(1)
+        enum_case = m.group(2)
+        default_val = 1 if m.group(3) == 'true' else 0
+        param_id = id_map.get(enum_case)
+        if param_id:
+            params.append({'name': name, 'id': param_id, 'default': default_val, 'type': 'toggle'})
+    return params
+
+def generate_moef_xml(plugin_name, plugin_uuid, plugin_desc, params=None):
+    if params is None:
+        params = []
+    
+    publish_targets = ['\t\t<target object="10010" channel="./10001" name="Mix"/>']
+    param_nodes = ['\t\t\t\t<parameter name="Mix" id="10001" flags="12901679104" default="1" value="1"/>']
+    
+    for p in params:
+        p_name = xml.sax.saxutils.escape(p['name'])
+        p_id = p['id']
+        p_def = p['default']
+        p_type = p.get('type', 'float')
+        
+        publish_targets.append(f'\t\t<target object="10010" channel="./{p_id}" name="{p_name}"/>')
+        if p_type == 'menu':
+            param_nodes.append(f'\t\t\t\t<parameter name="{p_name}" id="{p_id}" flags="8606777360" default="{int(p_def)}" value="{int(p_def)}"/>')
+        elif p_type == 'int':
+            param_nodes.append(f'\t\t\t\t<parameter name="{p_name}" id="{p_id}" flags="8606711824" default="{int(p_def)}" value="{int(p_def)}"/>')
+        elif p_type == 'toggle':
+            param_nodes.append(f'\t\t\t\t<parameter name="{p_name}" id="{p_id}" flags="8606711824" default="{int(p_def)}" value="{int(p_def)}"/>')
+        else:
+            param_nodes.append(f'\t\t\t\t<parameter name="{p_name}" id="{p_id}" flags="8606711824" default="{p_def}" value="{p_def}"/>')
+
+    publish_xml = "\n".join(publish_targets)
+    params_xml = "\n".join(param_nodes)
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE ozxmlscene>
 <ozml version="5.11">
@@ -121,7 +195,7 @@ def generate_moef_xml(plugin_name, plugin_uuid, plugin_desc):
 	</sceneSettings>
 	<publishSettings>
 		<version>2</version>
-		<target object="10010" channel="./10001" name="Mix"/>
+{publish_xml}
 	</publishSettings>
 	<timeRange offset="0 1 1 0" duration="1201200 120000 1 0"/>
 	<playRange offset="0 1 1 0" duration="1201200 120000 1 0"/>
@@ -228,10 +302,10 @@ def generate_moef_xml(plugin_name, plugin_uuid, plugin_desc):
 				<parameter name="Width" id="313" flags="8589934610" default="1" value="1920"/>
 				<parameter name="Height" id="314" flags="8589934610" default="1" value="1080"/>
 			</parameter>
-			<filter name="{plugin_name}" id="10010" factoryID="7" pluginUUID="{plugin_uuid}" pluginVersion="1.0" pluginName="{plugin_name}" pluginDynamicParams="1">
+			<filter name="{plugin_name}" id="10010" factoryID="7" pluginUUID="{plugin_uuid}" pluginVersion="1.0" pluginName="{plugin_name}" pluginDynamicParams="0">
 				<timing in="0 1 1 0" out="1197196 120000 1 0" offset="0 1 1 0"/>
 				<baseFlags>8589934608</baseFlags>
-				<parameter name="Mix" id="10001" flags="12901679104" default="1" value="1"/>
+{params_xml}
 			</filter>
 		</scenenode>
 		<aspectRatio>1</aspectRatio>
@@ -318,8 +392,8 @@ def generate_moef_xml(plugin_name, plugin_uuid, plugin_desc):
 </ozml>
 """
 
-def generate_motr_xml(plugin_name, plugin_uuid, plugin_desc):
-    return generate_moef_xml(plugin_name, plugin_uuid, plugin_desc)
+def generate_motr_xml(plugin_name, plugin_uuid, plugin_desc, params=None):
+    return generate_moef_xml(plugin_name, plugin_uuid, plugin_desc, params)
 
 def install_templates():
     user_home = Path.home()
@@ -339,24 +413,25 @@ def install_templates():
         uuid = plugin["uuid"]
         desc = plugin["desc"]
         ptype = plugin["type"]
+        params = get_params_for_plugin(name)
 
         if ptype == "effect":
             bundle_dir = effects_dir / name
             bundle_dir.mkdir(parents=True, exist_ok=True)
             template_file = bundle_dir / f"{name}.moef"
-            xml_content = generate_moef_xml(name, uuid, xml.sax.saxutils.escape(desc))
+            xml_content = generate_moef_xml(name, uuid, xml.sax.saxutils.escape(desc), params)
             category_rel = f"Movies/Motion Templates.localized/Effects.localized/BENDR/{name}"
         else:
             bundle_dir = transitions_dir / name
             bundle_dir.mkdir(parents=True, exist_ok=True)
             template_file = bundle_dir / f"{name}.motr"
-            xml_content = generate_motr_xml(name, uuid, xml.sax.saxutils.escape(desc))
+            xml_content = generate_motr_xml(name, uuid, xml.sax.saxutils.escape(desc), params)
             category_rel = f"Movies/Motion Templates.localized/Transitions.localized/BENDR/{name}"
 
         with open(template_file, "w", encoding="utf-8") as f:
             f.write(xml_content)
 
-        print(f"  ✅ Installed: {name} -> {category_rel}")
+        print(f"  ✅ Installed: {name} ({len(params)} params) -> {category_rel}")
 
     print("==================================================")
     print(f"🎉 Successfully generated and installed {len(PLUGINS)} templates!")
