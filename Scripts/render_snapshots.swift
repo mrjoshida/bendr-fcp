@@ -754,6 +754,101 @@ let runners: [(name: String, kernel: String, category: String, execute: (MTLComp
     ("BENDR_Optics", "bendrOptics", "single", { enc in
         var p = OpticsParams()
         enc.setBytes(&p, length: MemoryLayout<OpticsParams>.stride, index: 0)
+    }),
+    // Curated Presets Verification
+    ("BENDR_VHS_ChewedTape", "bendrVHS", "single", { enc in
+        var p = VHSParams()
+        p.tracking = 0.55
+        p.trackHunt = 0.6
+        p.crease = 0.6
+        p.dropout = 0.5
+        p.chromaLoss = 0.4
+        p.hiss = 0.3
+        p.genLoss = 0.35
+        p.tapeWow = 0.35
+        p.chromaBleed = 0.45
+        enc.setBytes(&p, length: MemoryLayout<VHSParams>.stride, index: 0)
+    }),
+    ("BENDR_CRT_ArcadeSlotMask", "bendrCRT", "crt", { enc in
+        var p = CRTParams()
+        p.outModel = 2.0
+        p.scanlines = 0.65
+        p.maskDark = 0.6
+        p.curvature = 0.2
+        p.bloom = 0.4
+        enc.setBytes(&p, length: MemoryLayout<CRTParams>.stride, index: 0)
+    }),
+    ("BENDR_Feedback_DrosteTunnel", "bendrFeedback", "feedback", { enc in
+        var p = FeedbackParams()
+        p.fbAmount = 0.9
+        p.fbZoom = 0.2
+        p.fbBlur = 0.06
+        p.fbNoise = 0.05
+        p.fbWrap = 1.0
+        p.fbNL = 1.0
+        enc.setBytes(&p, length: MemoryLayout<FeedbackParams>.stride, index: 0)
+    }),
+    ("BENDR_Colour_RainbowRite", "bendrColour", "single", { enc in
+        var p = ColourParams()
+        p.colorize = 0.85
+        p.colorBands = 1.8
+        p.colorSweep = 0.25
+        p.saturation = 1.3
+        p.glow = 0.45
+        p.contrast = 1.15
+        enc.setBytes(&p, length: MemoryLayout<ColourParams>.stride, index: 0)
+    }),
+    ("BENDR_Melt_GravityDrip", "bendrMelt", "melt", { enc in
+        var p = MeltParams()
+        p.meltMode = 3.0
+        p.edgeAmt = 1.6
+        p.edgeHold = 0.92
+        p.edgeWidth = 0.4
+        p.edgeCreep = 0.8
+        p.edgeChroma = 0.85
+        p.meltHue = 0.15
+        enc.setBytes(&p, length: MemoryLayout<MeltParams>.stride, index: 0)
+    }),
+    ("BENDR_Flow_CurlNoise", "bendrFlow", "flow", { enc in
+        var p = FlowParams()
+        p.flowField = 2.0
+        p.moshVec = 0.85
+        p.flowGain = 1.8
+        p.flowCurl = 0.7
+        p.flowEdge = 1.0
+        p.mosh = 0.3
+        enc.setBytes(&p, length: MemoryLayout<FlowParams>.stride, index: 0)
+    }),
+    ("BENDR_Synth_SpiralDrive", "bendrSynth", "single", { enc in
+        var p = SynthParams()
+        p.shape = 2.0
+        p.wave = 1.0
+        p.colmode = 2.0
+        p.genFreqX = 0.3
+        p.genFoldN = 6.0
+        p.genRate = 0.12
+        p.genSpread = 1.5
+        p.genHue = 0.1
+        p.genSat = 1.0
+        p.genFold = 0.25
+        enc.setBytes(&p, length: MemoryLayout<SynthParams>.stride, index: 0)
+    }),
+    ("BENDR_Spatial_80sTriangle", "bendrSpatial", "spatial", { enc in
+        var p = SpatialParams()
+        p.kaleido = 1.0
+        p.kaleidoN = 3.0
+        p.kaleidoRot = 0.15
+        p.srcZoom = 0.15
+        enc.setBytes(&p, length: MemoryLayout<SpatialParams>.stride, index: 0)
+    }),
+    ("BENDR_Optics_CamcorderHUD", "bendrOptics", "single", { enc in
+        var p = OpticsParams()
+        p.osdShow = 1.0
+        p.osdGlow = 0.7
+        p.lensCA = 0.4
+        p.vignette = 0.4
+        p.grain = 0.2
+        enc.setBytes(&p, length: MemoryLayout<OpticsParams>.stride, index: 0)
     })
 ]
 

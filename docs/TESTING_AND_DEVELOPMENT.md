@@ -9,7 +9,7 @@ This document explains the development workflow, automated test suites, headless
 You do **not** need Final Cut Pro running to build, test, and visually verify the plugins. All 14 Metal shaders and parameter structs can be verified from the command line in ~3 seconds.
 
 ```bash
-cd /Users/joshcaldwell/dev/bendr-fcp
+cd bendr-fcp
 ./Scripts/run_suite.sh
 ```
 

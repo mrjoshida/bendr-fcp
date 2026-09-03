@@ -98,18 +98,23 @@ swift Scripts/test_struct_alignments.swift
 swift Scripts/headless_render_test.swift
 ```
 
-## Motion Templates Installation
+## Motion Templates & Presets Installation
 
-You can automatically generate and install Final Cut Pro Motion Templates (`.moef` and `.motr`) for all 14 plugins with one command:
+You can automatically generate and install Final Cut Pro Motion Templates (`.moef` and `.motr`) for all 14 base plugins plus the **84 curated circuit-bent preset looks** with one command:
 
 ```bash
 python3 Scripts/make_templates.py
 ```
 This generates and installs templates directly into:
-- `~/Movies/Motion Templates.localized/Effects.localized/BENDR/`
-- `~/Movies/Motion Templates.localized/Transitions.localized/BENDR/`
+- `~/Movies/Motion Templates.localized/Effects.localized/BENDR/` (14 Core baseline plugins)
+- `~/Movies/Motion Templates.localized/Effects.localized/BENDR - <Category>/` (84 Pre-configured drag-and-drop looks)
+- `~/Movies/Motion Templates.localized/Transitions.localized/BENDR/` (Core transition)
+- `~/Movies/Motion Templates.localized/Transitions.localized/BENDR - Transitions/` (Curated transition looks)
 
-The plugins will appear immediately in Final Cut Pro under the **BENDR** category.
+The plugins and presets will appear immediately in Final Cut Pro under the **BENDR** and **BENDR - <Category>** categories. All preset parameters are fully exposed and keyframeable in the FCP inspector.
+
+For the full catalog of preset recipes, see the [Presets Reference Guide](docs/PRESETS_REFERENCE.md).
+
 
 ## Project Structure
 

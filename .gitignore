@@ -48,5 +48,10 @@ Packages/
 *.motr~*
 *.moti~*
 
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
 # Others
 Tests/

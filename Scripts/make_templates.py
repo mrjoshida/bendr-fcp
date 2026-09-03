@@ -1,16 +1,28 @@
-import xml.sax.saxutils
 #!/usr/bin/env python3
 """
-make_templates.py — Generates Final Cut Pro Motion Templates for all 14 BENDR plugins.
-Installs templates directly to ~/Movies/Motion Templates.localized/Effects.localized/BENDR/
-and ~/Movies/Motion Templates.localized/Transitions.localized/BENDR/
+make_templates.py — Generates Final Cut Pro Motion Templates for all 14 BENDR plugins
+and their curated preset looks.
+
+Installs templates to:
+- ~/Movies/Motion Templates.localized/Effects.localized/BENDR/
+- ~/Movies/Motion Templates.localized/Effects.localized/BENDR - <Category>/
+- ~/Movies/Motion Templates.localized/Transitions.localized/BENDR/
+- ~/Movies/Motion Templates.localized/Transitions.localized/BENDR - Transitions/
 """
 
 import os
 import sys
+import xml.sax.saxutils
 from pathlib import Path
 
-# Template metadata for all 14 plugins
+# Import presets data
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from presets_data import PRESETS
+except ImportError:
+    PRESETS = []
+
+# Base plugin metadata
 PLUGINS = [
     # Phase 1
     {"name": "BENDR VHS", "uuid": "B4C2D1E0-4567-4890-ABCD-EF0123456780", "type": "effect", "desc": "VHS tape degradation & NTSC artifacts"},
@@ -32,6 +44,9 @@ PLUGINS = [
     {"name": "BENDR Optics", "uuid": "F8A2B3C4-D5E6-4789-8A1B-2C3D4E5F6A77", "type": "effect", "desc": "Lens aberration, halation, bloom & camcorder HUD"},
 ]
 
+UUID_MAP = {p["name"]: p["uuid"] for p in PLUGINS}
+TYPE_MAP = {p["name"]: p["type"] for p in PLUGINS}
+
 def get_params_for_plugin(name):
     clean_name = name.replace(' ', '')
     base_dir = Path(__file__).resolve().parent.parent
@@ -48,43 +63,54 @@ def get_params_for_plugin(name):
     with open(filter_file, "r", encoding="utf-8") as fp:
         f_text = fp.read()
     params = []
+    
+    # Floats
     p_float = r'addFloatSlider\(withName:\s*\"([^\"]+)\",\s*parameterID:\s*\w+ParamID\.(\w+)\.rawValue,\s*defaultValue:\s*([0-9\.\-]+)'
     for m in re.finditer(p_float, f_text):
-        name = m.group(1)
+        pname = m.group(1)
         enum_case = m.group(2)
         default_val = float(m.group(3))
         param_id = id_map.get(enum_case)
         if param_id:
-            params.append({'name': name, 'id': param_id, 'default': default_val, 'type': 'float'})
+            params.append({'name': pname, 'enum': enum_case, 'id': param_id, 'default': default_val, 'type': 'float'})
+            
+    # Ints
     p_int = r'addIntSlider\(withName:\s*\"([^\"]+)\",\s*parameterID:\s*\w+ParamID\.(\w+)\.rawValue,\s*defaultValue:\s*([0-9\-]+)'
     for m in re.finditer(p_int, f_text):
-        name = m.group(1)
+        pname = m.group(1)
         enum_case = m.group(2)
         default_val = int(m.group(3))
         param_id = id_map.get(enum_case)
         if param_id:
-            params.append({'name': name, 'id': param_id, 'default': default_val, 'type': 'int'})
+            params.append({'name': pname, 'enum': enum_case, 'id': param_id, 'default': default_val, 'type': 'int'})
+            
+    # Popup Menus
     p_popup = r'addPopupMenu\(withName:\s*\"([^\"]+)\",\s*parameterID:\s*\w+ParamID\.(\w+)\.rawValue,\s*defaultValue:\s*(\d+)'
     for m in re.finditer(p_popup, f_text):
-        name = m.group(1)
+        pname = m.group(1)
         enum_case = m.group(2)
         default_val = int(m.group(3))
         param_id = id_map.get(enum_case)
         if param_id:
-            params.append({'name': name, 'id': param_id, 'default': default_val, 'type': 'menu'})
+            params.append({'name': pname, 'enum': enum_case, 'id': param_id, 'default': default_val, 'type': 'menu'})
+            
+    # Toggles
     p_toggle = r'addToggleButton\(withName:\s*\"([^\"]+)\",\s*parameterID:\s*\w+ParamID\.(\w+)\.rawValue,\s*defaultValue:\s*(true|false)'
     for m in re.finditer(p_toggle, f_text):
-        name = m.group(1)
+        pname = m.group(1)
         enum_case = m.group(2)
         default_val = 1 if m.group(3) == 'true' else 0
         param_id = id_map.get(enum_case)
         if param_id:
-            params.append({'name': name, 'id': param_id, 'default': default_val, 'type': 'toggle'})
+            params.append({'name': pname, 'enum': enum_case, 'id': param_id, 'default': default_val, 'type': 'toggle'})
+            
     return params
 
-def generate_moef_xml(plugin_name, plugin_uuid, plugin_desc, params=None):
+def generate_moef_xml(plugin_name, plugin_uuid, plugin_desc, params=None, overrides=None):
     if params is None:
         params = []
+    if overrides is None:
+        overrides = {}
     
     publish_targets = ['\t\t<target object="10010" channel="./10001" name="Mix"/>']
     param_nodes = ['\t\t\t\t<parameter name="Mix" id="10001" flags="12901679104" default="1" value="1"/>']
@@ -93,17 +119,19 @@ def generate_moef_xml(plugin_name, plugin_uuid, plugin_desc, params=None):
         p_name = xml.sax.saxutils.escape(p['name'])
         p_id = p['id']
         p_def = p['default']
+        p_enum = p.get('enum', '')
         p_type = p.get('type', 'float')
+        
+        # Look up override by enum name or display name
+        val = overrides.get(p_enum, overrides.get(p['name'], p_def))
         
         publish_targets.append(f'\t\t<target object="10010" channel="./{p_id}" name="{p_name}"/>')
         if p_type == 'menu':
-            param_nodes.append(f'\t\t\t\t<parameter name="{p_name}" id="{p_id}" flags="8606777360" default="{int(p_def)}" value="{int(p_def)}"/>')
-        elif p_type == 'int':
-            param_nodes.append(f'\t\t\t\t<parameter name="{p_name}" id="{p_id}" flags="8606711824" default="{int(p_def)}" value="{int(p_def)}"/>')
-        elif p_type == 'toggle':
-            param_nodes.append(f'\t\t\t\t<parameter name="{p_name}" id="{p_id}" flags="8606711824" default="{int(p_def)}" value="{int(p_def)}"/>')
+            param_nodes.append(f'\t\t\t\t<parameter name="{p_name}" id="{p_id}" flags="8606777360" default="{int(p_def)}" value="{int(val)}"/>')
+        elif p_type in ('int', 'toggle'):
+            param_nodes.append(f'\t\t\t\t<parameter name="{p_name}" id="{p_id}" flags="8606711824" default="{int(p_def)}" value="{int(val)}"/>')
         else:
-            param_nodes.append(f'\t\t\t\t<parameter name="{p_name}" id="{p_id}" flags="8606711824" default="{p_def}" value="{p_def}"/>')
+            param_nodes.append(f'\t\t\t\t<parameter name="{p_name}" id="{p_id}" flags="8606711824" default="{p_def}" value="{val}"/>')
 
     publish_xml = "\n".join(publish_targets)
     params_xml = "\n".join(param_nodes)
@@ -392,49 +420,91 @@ def generate_moef_xml(plugin_name, plugin_uuid, plugin_desc, params=None):
 </ozml>
 """
 
-def generate_motr_xml(plugin_name, plugin_uuid, plugin_desc, params=None):
-    return generate_moef_xml(plugin_name, plugin_uuid, plugin_desc, params)
+def generate_motr_xml(plugin_name, plugin_uuid, plugin_desc, params=None, overrides=None):
+    return generate_moef_xml(plugin_name, plugin_uuid, plugin_desc, params, overrides)
 
 def install_templates():
     user_home = Path.home()
     templates_base = user_home / "Movies" / "Motion Templates.localized"
-    effects_dir = templates_base / "Effects.localized" / "BENDR"
-    transitions_dir = templates_base / "Transitions.localized" / "BENDR"
+    effects_base = templates_base / "Effects.localized"
+    transitions_base = templates_base / "Transitions.localized"
 
-    effects_dir.mkdir(parents=True, exist_ok=True)
-    transitions_dir.mkdir(parents=True, exist_ok=True)
+    effects_base.mkdir(parents=True, exist_ok=True)
+    transitions_base.mkdir(parents=True, exist_ok=True)
 
     print("==================================================")
     print("🎬 Generating Final Cut Pro Motion Templates (BENDR)")
     print("==================================================")
 
+    # 1. Base Plugin Templates (Default Looks)
+    print("\n--- 1. Generating 14 Base Plugin Templates ---")
+    param_cache = {}
     for plugin in PLUGINS:
         name = plugin["name"]
         uuid = plugin["uuid"]
         desc = plugin["desc"]
         ptype = plugin["type"]
         params = get_params_for_plugin(name)
+        param_cache[name] = params
 
         if ptype == "effect":
-            bundle_dir = effects_dir / name
+            bundle_dir = effects_base / "BENDR" / name
             bundle_dir.mkdir(parents=True, exist_ok=True)
             template_file = bundle_dir / f"{name}.moef"
             xml_content = generate_moef_xml(name, uuid, xml.sax.saxutils.escape(desc), params)
-            category_rel = f"Movies/Motion Templates.localized/Effects.localized/BENDR/{name}"
+            category_rel = f"Effects/BENDR/{name}"
         else:
-            bundle_dir = transitions_dir / name
+            bundle_dir = transitions_base / "BENDR" / name
             bundle_dir.mkdir(parents=True, exist_ok=True)
             template_file = bundle_dir / f"{name}.motr"
             xml_content = generate_motr_xml(name, uuid, xml.sax.saxutils.escape(desc), params)
-            category_rel = f"Movies/Motion Templates.localized/Transitions.localized/BENDR/{name}"
+            category_rel = f"Transitions/BENDR/{name}"
 
         with open(template_file, "w", encoding="utf-8") as f:
             f.write(xml_content)
 
-        print(f"  ✅ Installed: {name} ({len(params)} params) -> {category_rel}")
+        print(f"  ✅ Installed Core: {name} ({len(params)} params) -> {category_rel}")
+
+    # 2. Curated Preset Templates
+    print(f"\n--- 2. Generating {len(PRESETS)} Curated Preset Templates ---")
+    preset_count = 0
+    for preset in PRESETS:
+        p_name = preset["name"]
+        plugin_name = preset["plugin"]
+        category = preset.get("category", f"BENDR - {plugin_name.replace('BENDR ', '')}")
+        desc = preset.get("desc", f"Preset: {p_name}")
+        overrides = preset.get("params", {})
+        
+        uuid = UUID_MAP.get(plugin_name)
+        ptype = TYPE_MAP.get(plugin_name, "effect")
+        params = param_cache.get(plugin_name, [])
+        if not uuid or not params:
+            continue
+
+        template_title = f"{plugin_name} — {p_name}"
+        if ptype == "effect":
+            cat_dir = effects_base / category
+            bundle_dir = cat_dir / template_title
+            bundle_dir.mkdir(parents=True, exist_ok=True)
+            template_file = bundle_dir / f"{template_title}.moef"
+            xml_content = generate_moef_xml(plugin_name, uuid, xml.sax.saxutils.escape(desc), params, overrides)
+            cat_rel = f"Effects/{category}/{template_title}"
+        else:
+            cat_dir = transitions_base / category
+            bundle_dir = cat_dir / template_title
+            bundle_dir.mkdir(parents=True, exist_ok=True)
+            template_file = bundle_dir / f"{template_title}.motr"
+            xml_content = generate_motr_xml(plugin_name, uuid, xml.sax.saxutils.escape(desc), params, overrides)
+            cat_rel = f"Transitions/{category}/{template_title}"
+
+        with open(template_file, "w", encoding="utf-8") as f:
+            f.write(xml_content)
+
+        preset_count += 1
+        print(f"  ✨ Installed Preset: {template_title} -> {cat_rel}")
 
     print("==================================================")
-    print(f"🎉 Successfully generated and installed {len(PLUGINS)} templates!")
+    print(f"🎉 Successfully installed {len(PLUGINS)} Core Plugins + {preset_count} Presets ({len(PLUGINS) + preset_count} Total Templates)!")
     print("==================================================")
 
 if __name__ == "__main__":
