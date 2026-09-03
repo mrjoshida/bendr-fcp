@@ -26,6 +26,20 @@ struct OpticsParams {
     float2 res;
 };
 
+// 7-segment bitmask table in global constant memory
+constant uint segMasks[10] = {
+    0x77, // 0: A B C D E F
+    0x24, // 1: B C
+    0x5D, // 2: A B D E G
+    0x6D, // 3: A B C D G
+    0x2E, // 4: B C F G
+    0x6B, // 5: A C D F G
+    0x7B, // 6: A C D E F G
+    0x25, // 7: A B C
+    0x7F, // 8: A B C D E F G
+    0x6F  // 9: A B C D F G
+};
+
 // Simple 2D FBM for smudge & leaks
 inline float fbmOptics(float2 p) {
     float v = 0.0;
@@ -45,29 +59,16 @@ inline float fbmOptics(float2 p) {
 // 7-segment digit raster for camcorder OSD
 inline float drawDigit(int d, float2 p) {
     if (p.x < 0.0 || p.x > 1.0 || p.y < 0.0 || p.y > 1.0) return 0.0;
-    // 7 segments: 0=top, 1=top-left, 2=top-right, 3=middle, 4=bottom-left, 5=bottom-right, 6=bottom
-    constexpr int segs[10] = {
-        0x77, // 0
-        0x24, // 1
-        0x5D, // 2
-        0x6D, // 3
-        0x2E, // 4
-        0x6B, // 5
-        0x7B, // 6
-        0x25, // 7
-        0x7F, // 8
-        0x6F  // 9
-    };
-    int s = segs[clamp(d, 0, 9)];
+    uint s = segMasks[clamp(d, 0, 9)];
     float w = 0.18;
     float hit = 0.0;
-    if ((s & 0x01) && p.y > 0.85 && p.x > 0.1 && p.x < 0.9) hit = 1.0;
-    if ((s & 0x02) && p.y > 0.50 && p.y < 0.85 && p.x < w) hit = 1.0;
-    if ((s & 0x04) && p.y > 0.50 && p.y < 0.85 && p.x > 1.0 - w) hit = 1.0;
-    if ((s & 0x08) && p.y > 0.42 && p.y < 0.58 && p.x > 0.1 && p.x < 0.9) hit = 1.0;
-    if ((s & 0x10) && p.y > 0.15 && p.y < 0.50 && p.x < w) hit = 1.0;
-    if ((s & 0x20) && p.y > 0.15 && p.y < 0.50 && p.x > 1.0 - w) hit = 1.0;
-    if ((s & 0x40) && p.y < 0.15 && p.x > 0.1 && p.x < 0.9) hit = 1.0;
+    if ((s & 0x01u) && p.y > 0.85 && p.x > 0.1 && p.x < 0.9) hit = 1.0;
+    if ((s & 0x02u) && p.y > 0.50 && p.y < 0.85 && p.x < w) hit = 1.0;
+    if ((s & 0x04u) && p.y > 0.50 && p.y < 0.85 && p.x > 1.0 - w) hit = 1.0;
+    if ((s & 0x08u) && p.y > 0.42 && p.y < 0.58 && p.x > 0.1 && p.x < 0.9) hit = 1.0;
+    if ((s & 0x10u) && p.y > 0.15 && p.y < 0.50 && p.x < w) hit = 1.0;
+    if ((s & 0x20u) && p.y > 0.15 && p.y < 0.50 && p.x > 1.0 - w) hit = 1.0;
+    if ((s & 0x40u) && p.y < 0.15 && p.x > 0.1 && p.x < 0.9) hit = 1.0;
     return hit;
 }
 
@@ -98,7 +99,7 @@ kernel void bendrOptics(
     }
     float alpha = inTex.sample(smp, uv).a;
 
-    // Anamorphic Lens Streak
+    // Anamorphic Lens Flare Streak
     if (p.lensStreak > 0.003) {
         float3 st = float3(0.0);
         float sw = 0.0;
@@ -108,26 +109,27 @@ kernel void bendrOptics(
             float2 lp = uv + float2(o, 0.0), rp = uv - float2(o, 0.0);
             float li = step(0.0, lp.x) * step(lp.x, 1.0);
             float ri = step(0.0, rp.x) * step(rp.x, 1.0);
-            st += max(inTex.sample(smp, clamp(lp, 0.0, 1.0)).rgb - 0.62, 0.0) * ww * li;
-            st += max(inTex.sample(smp, clamp(rp, 0.0, 1.0)).rgb - 0.62, 0.0) * ww * ri;
+            st += max(inTex.sample(smp, clamp(lp, 0.0, 1.0)).rgb - 0.55, 0.0) * ww * li;
+            st += max(inTex.sample(smp, clamp(rp, 0.0, 1.0)).rgb - 0.55, 0.0) * ww * ri;
             sw += ww * 2.0;
         }
         st /= max(sw, 0.0001);
-        c += st * p.lensStreak * 6.0 * mix(float3(1.0), float3(0.3, 0.55, 1.7), p.streakHue);
+        float3 streakTint = mix(float3(1.0), float3(0.3, 0.6, 1.8), p.streakHue);
+        c += st * p.lensStreak * 7.0 * streakTint;
     }
 
-    // Optical Bloom & Film Halation
+    // Optical Highlight Bloom & Film Halation
     if (p.bloom > 0.003 || p.halation > 0.003) {
-        float br = (0.004 + p.bloomRad * 0.02);
+        float br = (0.004 + p.bloomRad * 0.025);
         float3 b1 = inTex.sample(smp, clamp(uv + float2( br, 0.0), 0.0, 1.0)).rgb;
         float3 b2 = inTex.sample(smp, clamp(uv - float2( br, 0.0), 0.0, 1.0)).rgb;
         float3 b3 = inTex.sample(smp, clamp(uv + float2(0.0,  br), 0.0, 1.0)).rgb;
         float3 b4 = inTex.sample(smp, clamp(uv - float2(0.0,  br), 0.0, 1.0)).rgb;
-        float3 bloomCol = max((b1 + b2 + b3 + b4) * 0.25 - 0.5, 0.0);
+        float3 bloomCol = max((b1 + b2 + b3 + b4) * 0.25 - 0.4, 0.0);
         
-        c += bloomCol * p.bloom * 1.5;
+        c += bloomCol * p.bloom * 1.8;
         if (p.halation > 0.003) {
-            c += float3(bloomCol.r * 2.0, bloomCol.g * 0.2, bloomCol.b * 0.05) * p.halation * 1.8;
+            c += float3(bloomCol.r * 2.2, bloomCol.g * 0.3, bloomCol.b * 0.05) * p.halation * 2.0;
         }
     }
 
@@ -146,7 +148,7 @@ kernel void bendrOptics(
         c = mix(c, c * (1.0 - sm * 0.35), p.lensSmudge * 0.4);
     }
 
-    // Film Light Leak
+    // Film Light Leak / Edge Fogging
     if (p.lightLeak > 0.003) {
         float ang = p.time * 0.043;
         float2 dir = float2(cos(ang), sin(ang));
@@ -182,7 +184,7 @@ kernel void bendrOptics(
         }
     }
 
-    // Film Grain
+    // Film Grain (dynamic per frame)
     if (p.grain > 0.003) {
         float gn = h21(float2(gid) + fract(p.time) * float2(37.7, 71.3));
         c += (gn - 0.5) * p.grain * 0.16 * (0.35 + 0.65 * (1.0 - luma(c)));
@@ -198,28 +200,28 @@ kernel void bendrOptics(
 
     // Retro Camcorder On-Screen Display (OSD HUD)
     if (p.osdShow > 0.003) {
-        float hud = 0.0;
-        // REC indicator top-left (flashing dot)
-        if (uv.x > 0.06 && uv.x < 0.08 && uv.y > 0.88 && uv.y < 0.92) {
+        // REC indicator top-left (flashing red dot + REC text)
+        if (uv.x > 0.05 && uv.x < 0.14 && uv.y > 0.86 && uv.y < 0.94) {
             float dRec = length((uv - float2(0.07, 0.90)) * float2(ar, 1.0));
-            if (dRec < 0.012 && fract(p.time * 1.2) > 0.3) {
+            if (dRec < 0.014 && fract(p.time * 1.2) > 0.3) {
                 c = mix(c, float3(1.0, 0.1, 0.1), p.osdShow);
             }
         }
         // Timecode bottom-right
-        if (uv.x > 0.72 && uv.x < 0.94 && uv.y > 0.07 && uv.y < 0.12) {
-            float2 tcPos = (uv - float2(0.72, 0.07)) / float2(0.22, 0.05);
-            int sec = int(fmod(p.time, 60.0));
-            int min = int(fmod(p.time / 60.0, 60.0));
-            int d1 = min / 10, d2 = min % 10;
-            int d3 = sec / 10, d4 = sec % 10;
+        if (uv.x > 0.70 && uv.x < 0.95 && uv.y > 0.06 && uv.y < 0.14) {
+            float2 tcPos = (uv - float2(0.70, 0.06)) / float2(0.25, 0.08);
+            uint totalSec = uint(max(0.0, p.time));
+            uint sec = totalSec % 60u;
+            uint min = (totalSec / 60u) % 60u;
+            int d1 = int(min / 10u), d2 = int(min % 10u);
+            int d3 = int(sec / 10u), d4 = int(sec % 10u);
             float charX = tcPos.x * 6.0;
             int digitIdx = int(floor(charX));
             float2 charUV = float2(fract(charX), tcPos.y);
             float dVal = 0.0;
             if (digitIdx == 0) dVal = drawDigit(d1, charUV);
             else if (digitIdx == 1) dVal = drawDigit(d2, charUV);
-            else if (digitIdx == 2) dVal = (charUV.y > 0.3 && charUV.y < 0.4 && abs(charUV.x - 0.5) < 0.1) || (charUV.y > 0.6 && charUV.y < 0.7 && abs(charUV.x - 0.5) < 0.1) ? 1.0 : 0.0;
+            else if (digitIdx == 2) dVal = ((charUV.y > 0.3 && charUV.y < 0.45 && abs(charUV.x - 0.5) < 0.12) || (charUV.y > 0.55 && charUV.y < 0.7 && abs(charUV.x - 0.5) < 0.12)) ? 1.0 : 0.0;
             else if (digitIdx == 3) dVal = drawDigit(d3, charUV);
             else if (digitIdx == 4) dVal = drawDigit(d4, charUV);
             
