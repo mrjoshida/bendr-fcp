@@ -20,9 +20,32 @@ struct MeltParams {
     float2 res;
 };
 
-// Helper: 2D Sobel edge detector
+// 2D Perlin / Value Noise for organic fluid turbulence
+inline float meltNoise(float2 p) {
+    float2 i = floor(p);
+    float2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = h21(i);
+    float b = h21(i + float2(1.0, 0.0));
+    float c = h21(i + float2(0.0, 1.0));
+    float d = h21(i + float2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+inline float2 meltCurl(float2 p) {
+    float eps = 0.08;
+    float n1 = meltNoise(p + float2(0.0, eps));
+    float n2 = meltNoise(p - float2(0.0, eps));
+    float n3 = meltNoise(p + float2(eps, 0.0));
+    float n4 = meltNoise(p - float2(eps, 0.0));
+    float dx = (n3 - n4) / (2.0 * eps);
+    float dy = (n1 - n2) / (2.0 * eps);
+    return float2(dy, -dx); // Curl perpendicular to gradient
+}
+
+// 2D Sobel edge detector
 inline float4 sampleEdge(texture2d<float, access::sample> tex, sampler smp, float2 uv, float2 res) {
-    float2 e = 2.0 / res;
+    float2 e = 3.0 / res;
     float3 c00 = tex.sample(smp, clamp(uv + float2(-e.x, -e.y), 0.0, 1.0)).rgb;
     float3 c10 = tex.sample(smp, clamp(uv + float2( 0.0, -e.y), 0.0, 1.0)).rgb;
     float3 c20 = tex.sample(smp, clamp(uv + float2( e.x, -e.y), 0.0, 1.0)).rgb;
@@ -72,61 +95,79 @@ kernel void bendrMelt(
     float edgeMag = edgeInfo.z;
     float l = luma(src);
 
-    // Multi-tap directional melt vector calculation
+    // Dynamic fluid turbulence field
+    float2 fluidCoord = uv * float2(5.0 * outA, 5.0) + float2(0.0, p.time * 0.4);
+    float2 curl = meltCurl(fluidCoord);
+    float2 curl2 = meltCurl(fluidCoord * 2.2 + float2(3.1, 7.7));
+
+    // Directional Melt Vector calculation with bold displacement scale
     float2 meltVec = float2(0.0);
     float meltWeight = 0.0;
+    float meltMagnitude = p.edgeAmt * 0.35 + 0.05; // Significant visible displacement
 
     if (p.meltMode > 2.5) {
-        // Mode 3: Gravity / Directional Luma Melt (viscous dripping)
+        // Mode 3: Gravity / Thermal Luma Melt (hot bright pixels liquefy and drip down)
         float a = p.meltDir * PI;
-        float gate = mix(1.0, smoothstep(p.meltGate - 0.2, p.meltGate + 0.2, l), step(0.001, p.meltGate));
-        float2 gdir = float2(sin(a), -cos(a));
-        float dripScale = (0.01 + p.edgeAmt * 0.12) * (0.2 + 0.8 * l) * gate;
-        meltVec = gdir * dripScale;
-        meltWeight = gate * clamp(p.edgeHold * 1.2, 0.0, 1.0);
-    } else if (p.meltMode > 1.5) {
-        // Mode 2: Motion Driven Dynamic Warp
-        float2 c = (uv - 0.5) * float2(outA, 1.0);
-        float ro = p.edgeSwirl * 0.35;
-        float zo = 1.0 - p.meltZoom * 0.18;
-        float cs = cos(ro), sn = sin(ro);
-        float2 rotC = float2(cs * c.x - sn * c.y, sn * c.x + cs * c.y) * zo;
-        float2 targetUV = rotC / float2(outA, 1.0) + 0.5;
-        meltVec = (targetUV - uv) * (0.5 + p.edgeAmt);
+        float2 gdir = float2(sin(a), -cos(a)); // Downward gravity
+        float gate = mix(1.0, smoothstep(p.meltGate - 0.25, p.meltGate + 0.25, l), step(0.001, p.meltGate));
         
+        // Fluid drip paths modulated by luma, curl noise & edge contours
+        float drip = (0.3 + 0.7 * l) * (1.0 + 0.5 * curl.x) * gate;
+        meltVec = (gdir * drip + curl2 * 0.25 * drip) * meltMagnitude;
+        meltWeight = gate * clamp(p.edgeHold * (0.6 + 0.6 * l), 0.0, 1.0);
+        
+    } else if (p.meltMode > 1.5) {
+        // Mode 2: Motion Driven Dynamic Liquid Warp
         float3 prevSample = prevTex.sample(smp, uv).rgb;
         float motionDiff = abs(l - luma(prevSample));
-        meltWeight = clamp(p.edgeHold * (0.4 + motionDiff * 8.0 * (1.0 + p.edgeWidth * 3.0)), 0.0, 1.0);
+        float motionGate = smoothstep(0.02, 0.25 / (1.0 + p.edgeWidth * 3.0), motionDiff);
+        
+        // Liquid swirl at motion boundaries
+        float2 c = (uv - 0.5) * float2(outA, 1.0);
+        float ro = p.edgeSwirl * 0.6 + curl.x * 0.3;
+        float cs = cos(ro), sn = sin(ro);
+        float2 rotC = float2(cs * c.x - sn * c.y, sn * c.x + cs * c.y) * (1.0 - p.meltZoom * 0.25);
+        float2 targetUV = rotC / float2(outA, 1.0) + 0.5;
+        
+        meltVec = ((targetUV - uv) + curl * 0.15) * (0.6 + p.edgeAmt * 1.2);
+        meltWeight = clamp(p.edgeHold * (0.3 + motionGate * 1.5), 0.0, 1.0);
+        
     } else if (p.meltMode > 0.5) {
         // Mode 1: Spiral Feedback Vortex
         float2 c = (uv - 0.5) * float2(outA, 1.0);
-        float ro = p.edgeSwirl * 0.35 + sin(p.time * 0.5) * 0.05;
-        float zo = 1.0 - p.meltZoom * 0.18;
+        float r = length(c);
+        float ro = p.edgeSwirl * 1.2 * (1.0 - smoothstep(0.0, 0.8, r)) + p.time * 0.3;
         float cs = cos(ro), sn = sin(ro);
-        float2 rotC = float2(cs * c.x - sn * c.y, sn * c.x + cs * c.y) * zo;
+        float2 rotC = float2(cs * c.x - sn * c.y, sn * c.x + cs * c.y) * (1.0 - p.meltZoom * 0.3);
         float2 targetUV = rotC / float2(outA, 1.0) + 0.5;
-        meltVec = (targetUV - uv) * (0.4 + p.edgeAmt * 0.8);
-        meltWeight = clamp(p.edgeHold * 1.0, 0.0, 1.0);
+        
+        meltVec = (targetUV - uv + curl * 0.08) * (0.7 + p.edgeAmt);
+        meltWeight = clamp(p.edgeHold * 1.1, 0.0, 1.0);
+        
     } else {
-        // Mode 0: Edge Smear / Boundary Bleed
+        // Mode 0: Viscous Edge Bleed & Liquid Boundary Smear
         float creepSign = mix(1.0, -1.0, p.edgeCreep);
-        float smearDist = (0.01 + p.edgeAmt * 0.09);
-        meltVec = en * creepSign * smearDist;
-        float edgeBand = smoothstep(0.01, 0.35 / (1.0 + p.edgeWidth * 4.0), edgeMag);
-        meltWeight = clamp(edgeBand * p.edgeHold * 1.3, 0.0, 1.0);
+        float edgeBand = smoothstep(0.005, 0.45 / (1.0 + p.edgeWidth * 4.0), edgeMag);
+        
+        // Follow edge normal with fluid curl deflection
+        float2 fluidNormal = normalize(en + curl * 0.6);
+        meltVec = fluidNormal * creepSign * meltMagnitude * (0.4 + 0.6 * edgeBand);
+        meltWeight = clamp(edgeBand * p.edgeHold * 1.4 + 0.2 * p.edgeHold, 0.0, 1.0);
     }
 
-    // Multi-tap viscous accumulation along melt vector (8 taps)
+    // 12-Tap Viscous Fluid Accumulation along stream lines
     float3 meltedRgb = float3(0.0);
     float totalW = 0.0;
-    for (int i = 1; i <= 8; i++) {
-        float fi = float(i) / 8.0;
-        float tapW = exp(-fi * (1.5 - p.edgeHold * 0.8));
+    
+    for (int i = 1; i <= 12; i++) {
+        float fi = float(i) / 12.0;
+        // Non-linear fluid viscosity weighting
+        float tapW = exp(-fi * (1.8 - p.edgeHold * 0.9));
         float2 tapUV = clamp(uv + meltVec * fi, 0.0, 1.0);
         
-        // Chromatic dispersion per tap
+        // Chromatic dispersion along fluid stream
         if (p.edgeChroma > 0.002) {
-            float2 cOff = meltVec * fi * p.edgeChroma * 0.5;
+            float2 cOff = meltVec * fi * p.edgeChroma * 0.6;
             float r = inTex.sample(smp, clamp(tapUV + cOff, 0.0, 1.0)).r;
             float g = inTex.sample(smp, tapUV).g;
             float b = inTex.sample(smp, clamp(tapUV - cOff, 0.0, 1.0)).b;
@@ -138,23 +179,23 @@ kernel void bendrMelt(
     }
     meltedRgb /= max(totalW, 0.0001);
 
-    // Soften / blur radius
+    // Surface tension softening & diffusion blur
     if (p.meltSoft > 0.002) {
-        float sr = p.meltSoft * 0.008;
+        float sr = p.meltSoft * 0.015;
         float3 s1 = inTex.sample(smp, clamp(uv + float2(sr / outA, 0.0), 0.0, 1.0)).rgb;
         float3 s2 = inTex.sample(smp, clamp(uv - float2(sr / outA, 0.0), 0.0, 1.0)).rgb;
         float3 s3 = inTex.sample(smp, clamp(uv + float2(0.0, sr), 0.0, 1.0)).rgb;
         float3 s4 = inTex.sample(smp, clamp(uv - float2(0.0, sr), 0.0, 1.0)).rgb;
         float3 blurred = (s1 + s2 + s3 + s4) * 0.25;
-        meltedRgb = mix(meltedRgb, blurred, p.meltSoft * 0.6);
+        meltedRgb = mix(meltedRgb, blurred, p.meltSoft * 0.7);
     }
 
-    // Hue shift
+    // Color cycling / thermal hue shift
     if (abs(p.meltHue) > 0.002) {
-        meltedRgb = hueRotate(meltedRgb, p.meltHue * 0.35);
+        meltedRgb = hueRotate(meltedRgb, p.meltHue * 0.5);
     }
 
-    // Blend original with multi-tap melted fluid
+    // Blend source with liquefied fluid
     float3 finalRgb = mix(src, meltedRgb, meltWeight);
     outTex.write(float4(clamp(finalRgb, 0.0, 1.5), srcAlpha), gid);
 }

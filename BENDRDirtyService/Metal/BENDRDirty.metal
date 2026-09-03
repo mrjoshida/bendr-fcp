@@ -14,6 +14,19 @@ struct DirtyParams {
     float2 res;
 };
 
+// Continuous 1D band-limited analog RF noise along the raster scanline
+inline float analogScanlineNoise(float2 uv, float frameSeed, float resX) {
+    float row = floor(uv.y * 480.0);
+    float scanPos = uv.x * resX * 0.25;
+    float s0 = floor(scanPos);
+    float sf = fract(scanPos);
+    // Smooth cubic hermite interpolation along the scanline RF carrier
+    float sf2 = sf * sf * (3.0 - 2.0 * sf);
+    float n0 = h21(float2(s0, row * 1.37 + frameSeed * 31.7));
+    float n1 = h21(float2(s0 + 1.0, row * 1.37 + frameSeed * 31.7));
+    return mix(n0, n1, sf2) * 2.0 - 1.0;
+}
+
 kernel void bendrDirty(
     texture2d<float, access::sample> inTex  [[texture(0)]],
     texture2d<float, access::write>  outTex [[texture(1)]],
@@ -33,107 +46,113 @@ kernel void bendrDirty(
         return;
     }
 
-    // --- Dynamic Per-Frame Time & Event Clock ---
-    // Frame-level seed updates on every single frame (at 30/60 fps)
+    // Dynamic per-frame seed (30 fps frame counter)
     float frameSeed = floor(p.time * 30.0);
     
-    // Periodic macro fault events (desk failures, sync pops)
-    float dr = 1.0 + p.mixDirtRate * 12.0;
+    // Macro fault events (periodic tape damage / tracking loss burst)
+    float dr = 1.0 + p.mixDirtRate * 8.0;
     float ph = p.time * dr;
     float tk = floor(ph);
     float fr = fract(ph);
-    
-    // Event trigger envelope with organic exponential decay
-    float eventTrigger = step(0.35, h21(float2(tk, 7.71) + p.mixDirt * 13.0));
-    float burstIntensity = eventTrigger * exp(-fr * mix(12.0, 3.0, p.mixDirt));
-    float totalDirt = clamp(p.mixDirt * 0.4 + burstIntensity * 0.8, 0.0, 1.5);
+    float eventTrigger = step(0.38, h21(float2(tk, 11.71) + p.mixDirt * 9.0));
+    float burstIntensity = eventTrigger * exp(-fr * mix(10.0, 2.5, p.mixDirt));
+    float totalDirt = clamp(p.mixDirt * 0.45 + burstIntensity * 0.75, 0.0, 1.5);
 
-    // --- Timebase Knock, Jitter & Head-Switching Shear ---
+    // 1. Timebase jitter & head switching flag waving
     float2 duv = uv;
     if (p.mixDirtKnock > 0.003) {
-        float rowI = floor(uv.y * p.res.y);
+        float rowI = floor(uv.y * 480.0);
         
-        // 1. High-frequency line-by-line sync jitter (changes EVERY frame)
-        float lineNoise = (h21(float2(rowI * 0.17, frameSeed * 3.19)) - 0.5) * 0.012 * p.mixDirtKnock * totalDirt;
+        // Analog horizontal line-to-line sync jitter
+        float lineNoise = (h21(float2(rowI * 0.23, frameSeed * 7.19)) - 0.5) * 0.015 * p.mixDirtKnock * totalDirt;
         
-        // 2. Top-of-frame flag waving / head-switching distortion
-        float flagWave = exp(-uv.y * 7.0) * sin(uv.y * 24.0 + p.time * 45.0) * 0.04 * p.mixDirtKnock * totalDirt;
+        // CRT / VCR bottom head-switching glitch bar
+        float headSwitchZone = smoothstep(0.92, 1.0, uv.y);
+        float headSwitchShear = headSwitchZone * sin(uv.y * 80.0 + frameSeed) * 0.035 * p.mixDirtKnock * totalDirt;
         
-        // 3. Macro horizontal frame shear during burst events
-        float macroShear = (h21(float2(tk, 5.53)) - 0.5) * 0.12 * p.mixDirtKnock * burstIntensity;
+        // Top flag-waving skew
+        float flagWave = exp(-uv.y * 6.0) * sin(p.time * 25.0) * 0.02 * p.mixDirtKnock * totalDirt;
         
-        // 4. Vertical sync bounce
-        float vBounce = (h21(float2(tk, 2.19)) - 0.5) * 0.04 * p.mixDirtKnock * burstIntensity;
+        // Macro horizontal jump on tracking hit
+        float macroJump = (h21(float2(tk, 3.41)) - 0.5) * 0.08 * p.mixDirtKnock * burstIntensity;
         
-        duv.x += lineNoise + flagWave + macroShear;
-        duv.y = clamp(duv.y + vBounce, 0.0, 1.0);
+        duv.x += lineNoise + headSwitchShear + flagWave + macroJump;
+        duv.y = clamp(duv.y + (h21(float2(tk, 8.81)) - 0.5) * 0.025 * burstIntensity * p.mixDirtKnock, 0.0, 1.0);
     }
 
-    // Source Sample (clamped, no wrapping)
+    // 2. Base video sampling with Y/C separation
     float4 srcSample = inTex.sample(smp, clamp(duv, 0.0, 1.0));
     float3 src = srcSample.rgb;
     float alpha = srcSample.a;
 
-    // --- Dynamic Line Dropouts & Tape Oxide Streaks ---
+    // 3. Realistic Analog Tape Oxide Dropouts (horizontal streaking with exponential RC recovery)
     if (p.mixDirtDrop > 0.003 && totalDirt > 0.01) {
-        // Individual scanline dropouts (calculated per frame)
-        float rowI = floor(uv.y * p.res.y);
-        float lineRand = h21(float2(rowI, frameSeed * 7.13));
+        float rowI = floor(uv.y * 480.0);
+        float lineRand = h21(float2(rowI, frameSeed * 13.37));
         
-        // Drop threshold dynamically driven by mixDirtDrop
-        float dropThresh = 1.0 - (p.mixDirtDrop * totalDirt * 0.06);
+        float dropThresh = 1.0 - (p.mixDirtDrop * totalDirt * 0.07);
         if (lineRand > dropThresh) {
-            // Horizontal dropout streak position and length
-            float streakStart = h21(float2(rowI, frameSeed * 11.3));
-            float streakLen = 0.08 + 0.6 * h21(float2(rowI, frameSeed * 17.9));
+            float streakStart = h21(float2(rowI, frameSeed * 5.11));
+            float streakLen = 0.05 + 0.55 * h21(float2(rowI, frameSeed * 19.33));
+            
             if (uv.x >= streakStart && uv.x <= streakStart + streakLen) {
-                // Oxide flake type: white flash, dark loss, or chromatic shear
-                float flakeType = h21(float2(rowI, frameSeed * 23.1));
-                if (flakeType < 0.35) {
-                    src = float3(0.95, 0.95, 1.0); // Bright RF drop
-                } else if (flakeType < 0.65) {
-                    src *= 0.1; // Total signal loss / black streak
+                float progress = (uv.x - streakStart) / streakLen;
+                // Exponential decay tail at the end of the dropout (head amplifier recovery)
+                float tailDecay = exp(-progress * 2.5);
+                float flakeType = h21(float2(rowI, frameSeed * 29.7));
+                
+                if (flakeType < 0.4) {
+                    // Bright white RF streak (demodulator saturated peak) with soft edges
+                    src = mix(src, float3(0.92, 0.94, 0.98), tailDecay * 0.9);
+                } else if (flakeType < 0.7) {
+                    // Signal black loss
+                    src = mix(src, float3(0.04), tailDecay * 0.85);
                 } else {
-                    // Y/C delay chromatic smear
-                    float2 chromaUV = clamp(float2(duv.x - 0.04, duv.y), 0.0, 1.0);
-                    src = mix(src, inTex.sample(smp, chromaUV).bgr, 0.85);
+                    // Y/C delay chromatic smear (red/cyan fringe)
+                    float2 cOffset = float2(-0.03 * tailDecay, 0.0);
+                    float3 smearedChroma = inTex.sample(smp, clamp(duv + cOffset, 0.0, 1.0)).rgb;
+                    src = mix(src, smearedChroma.brg, 0.75 * tailDecay);
                 }
             }
         }
     }
 
-    // --- Switching Cut / Momentary Flash & Solarization ---
-    if (p.mixDirtCut > 0.003 && burstIntensity > 0.05) {
-        float cutSeed = h21(float2(tk, 9.31));
-        if (cutSeed > 0.45) {
-            float flashAmt = burstIntensity * p.mixDirtCut;
-            if (cutSeed > 0.75) {
-                // Color inversion / solarization
-                src = mix(src, 1.0 - src, clamp(flashAmt * 1.5, 0.0, 0.95));
-            } else if (cutSeed > 0.55) {
-                // Luma flash
-                src = mix(src, float3(1.1, 1.05, 0.95), clamp(flashAmt * 1.3, 0.0, 0.9));
-            } else {
-                // Sync black cut
-                src = mix(src, float3(0.02), clamp(flashAmt * 1.4, 0.0, 0.95));
-            }
+    // 4. Analog Magnetic Tape Oxide Spots / Clumps (spanning 2-4 lines with soft organic contours)
+    float2 clumpGrid = uv * float2(16.0, 12.0);
+    float2 clumpID = floor(clumpGrid);
+    float clumpRand = h21(clumpID + float2(frameSeed * 3.3, frameSeed * 7.7));
+    if (clumpRand > 1.0 - p.mixDirt * 0.08) {
+        float2 clumpCenter = clumpID + float2(h21(clumpID + 1.1), h21(clumpID + 2.2));
+        float dist = length((clumpGrid - clumpCenter) * float2(0.5, 2.5)); // Horizontally stretched magnetic smear
+        if (dist < 0.45) {
+            float clumpMask = smoothstep(0.45, 0.1, dist);
+            src = mix(src, float3(0.05), clumpMask * 0.7 * p.mixDirt);
         }
     }
 
-    // --- Transient RF Noise & Analog Grain (Per-Pixel, Per-Frame) ---
+    // 5. 60Hz Ground Loop Hum Bar (soft rolling luma shading)
+    float humPos = fract(uv.y * 1.5 - p.time * 0.4);
+    float humBar = sin(humPos * 2.0 * PI) * 0.045 * p.mixDirt;
+    src = clamp(src + float3(humBar), 0.0, 1.0);
+
+    // 6. Analog RF demodulation noise (continuous scanline carrier, not digital pixels)
     if (p.mixDirtNoise > 0.003) {
-        // High-frequency per-pixel noise that changes EVERY single frame
-        float2 px = float2(gid);
-        float noiseVal = h21(px + float2(frameSeed * 37.71, frameSeed * 91.13)) - 0.5;
-        
-        // Analog luma noise + chroma sparkles
-        float noiseAmt = p.mixDirtNoise * (0.15 + totalDirt * 0.35);
-        src += float3(noiseVal * noiseAmt);
-        
-        // Random magnetic oxide speckles
-        float speckleRand = h21(px * 0.5 + float2(frameSeed * 13.9, frameSeed * 47.1));
-        if (speckleRand > 1.0 - (p.mixDirtNoise * totalDirt * 0.004)) {
-            src = (speckleRand > 1.0 - p.mixDirtNoise * totalDirt * 0.002) ? float3(1.0) : float3(0.0);
+        float rfNoise = analogScanlineNoise(uv, frameSeed, p.res.x);
+        float noiseGain = p.mixDirtNoise * (0.08 + totalDirt * 0.18);
+        src += float3(rfNoise * noiseGain);
+        // Slight chromatic noise dispersion
+        float rfChroma = analogScanlineNoise(uv + float2(0.01, 0.0), frameSeed + 1.0, p.res.x);
+        src.rb += float2(rfChroma * noiseGain * 0.4, -rfChroma * noiseGain * 0.4);
+    }
+
+    // 7. Momentary signal solarization / flash on tracking burst
+    if (p.mixDirtCut > 0.003 && burstIntensity > 0.08) {
+        float cutSeed = h21(float2(tk, 13.9));
+        float flashAmt = burstIntensity * p.mixDirtCut;
+        if (cutSeed > 0.7) {
+            src = mix(src, 1.0 - src, clamp(flashAmt * 1.2, 0.0, 0.9));
+        } else if (cutSeed > 0.4) {
+            src = mix(src, float3(1.15, 1.1, 0.95), clamp(flashAmt * 1.1, 0.0, 0.85));
         }
     }
 
