@@ -96,17 +96,18 @@ public class BENDRMeltFilter: NSObject, FxTileableEffect {
         pluginState.pointee = try p.encode() as NSData
     }
 
-    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [FxImage], destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {
-        if let src = sourceImages.first, src.responds(to: #selector(getter: FxImage.width)), src.responds(to: #selector(getter: FxImage.height)) {
-            let w = Int32(src.width)
-            let h = Int32(src.height)
-            destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: w > 0 ? w : 1920, top: h > 0 ? h : 1080)
+    public func destinationImageRect(_ destinationImageRect: UnsafeMutablePointer<FxRect>, sourceImages: [Any], destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
+        // FCP sends FxImageTile objects at runtime despite the protocol declaring FxImage
+        if let tile = sourceImages.first as? FxImageTile {
+            destinationImageRect.pointee = tile.imagePixelBounds
+        } else if let img = sourceImages.first as? FxImage {
+            destinationImageRect.pointee = img.bounds
         } else {
             destinationImageRect.pointee = FxRect(left: 0, bottom: 0, right: 1920, top: 1080)
         }
     }
 
-    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [FxImage], destinationTileRect: FxRect, destinationImage: FxImage, pluginState: Data?, at renderTime: CMTime) throws {
+    public func sourceTileRect(_ sourceTileRect: UnsafeMutablePointer<FxRect>, sourceImageIndex: UInt, sourceImages: [Any], destinationTileRect: FxRect, destinationImage: Any, pluginState: Data?, at renderTime: CMTime) throws {
         sourceTileRect.pointee = destinationTileRect
     }
 

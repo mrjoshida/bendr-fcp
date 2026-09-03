@@ -128,20 +128,20 @@ static NSString * const _Nonnull kFxPropertyKey_NeedsFullBuffer = @"kFxPropertyK
               error:(NSError * _Nullable * _Nullable)error;
 
 - (BOOL)destinationImageRect:(FxRect * _Nonnull)destinationImageRect
-                sourceImages:(NSArray<FxImage *> * _Nonnull)sourceImages
-            destinationImage:(FxImage * _Nonnull)destinationImage
-                 pluginState:(NSData * _Nullable)pluginState
-                      atTime:(CMTime)renderTime
-                       error:(NSError * _Nullable * _Nullable)error;
+                 sourceImages:(NSArray * _Nonnull)sourceImages
+             destinationImage:(id _Nonnull)destinationImage
+                  pluginState:(NSData * _Nullable)pluginState
+                       atTime:(CMTime)renderTime
+                        error:(NSError * _Nullable * _Nullable)error;
 
 - (BOOL)sourceTileRect:(FxRect * _Nonnull)sourceTileRect
-      sourceImageIndex:(NSUInteger)sourceImageIndex
-          sourceImages:(NSArray<FxImage *> * _Nonnull)sourceImages
-   destinationTileRect:(FxRect)destinationTileRect
-      destinationImage:(FxImage * _Nonnull)destinationImage
-           pluginState:(NSData * _Nullable)pluginState
-                atTime:(CMTime)renderTime
-                 error:(NSError * _Nullable * _Nullable)error;
+       sourceImageIndex:(NSUInteger)sourceImageIndex
+           sourceImages:(NSArray * _Nonnull)sourceImages
+    destinationTileRect:(FxRect)destinationTileRect
+       destinationImage:(id _Nonnull)destinationImage
+            pluginState:(NSData * _Nullable)pluginState
+                 atTime:(CMTime)renderTime
+                  error:(NSError * _Nullable * _Nullable)error;
 
 - (BOOL)renderDestinationImage:(FxImageTile * _Nonnull)destinationImage
                   sourceImages:(NSArray<FxImageTile *> * _Nonnull)sourceImages
