@@ -35,13 +35,16 @@ inline float3 hsvOut(float3 c) {
     return c.z * mix(float3(1.0), clamp(q - 1.0, 0.0, 1.0), c.y);
 }
 
+// Phosphor aperture grille / slot mask / triad patterns
 float3 maskAt(float2 fc, float model, float maskDark) {
     float dark = 1.0 - maskDark * 0.55;
     if(model < 1.5) { 
+        // Trinitron Aperture Grille
         float m = fmod(fc.x, 3.0);
         return float3(m < 1.0 ? 1.0 : dark, (m >= 1.0 && m < 2.0) ? 1.0 : dark, m >= 2.0 ? 1.0 : dark); 
     }
     if(model < 2.5) { 
+        // Slot Mask
         float2 g = floor(fc / float2(3.0, 6.0));
         float off = fmod(g.y, 2.0) * 1.5;
         float m = fmod(fc.x + off, 3.0);
@@ -49,6 +52,7 @@ float3 maskAt(float2 fc, float model, float maskDark) {
         return float3(m < 1.0 ? 1.0 : dark, (m >= 1.0 && m < 2.0) ? 1.0 : dark, m >= 2.0 ? 1.0 : dark) * v; 
     }
     if(model < 3.5) { 
+        // Dot Triad
         float2 q = fc / float2(6.0, 6.0);
         float2 f = fract(q) - 0.5;
         float r = length(f);
@@ -57,6 +61,7 @@ float3 maskAt(float2 fc, float model, float maskDark) {
         return t * (1.0 - smoothstep(0.28, 0.5, r) * maskDark); 
     }
     if(model < 4.5) { 
+        // Monochrome B&W Phosphor
         float m = fmod(fc.x, 2.0);
         return mix(float3(1.0), float3(m < 1.0 ? 1.06 : dark), 0.85); 
     }
@@ -75,47 +80,66 @@ kernel void bendrCRT(texture2d<float, access::sample> u_tex [[texture(0)]],
     constexpr sampler s(address::clamp_to_edge, filter::linear);
     
     float2 res = float2(outTex.get_width(), outTex.get_height());
-    float2 uv = float2(gid) / res;
+    float2 uv = (float2(gid) + 0.5) / res;
     
-    float2 p = uv * 2.0 - 1.0;
+    // --- Authentic CRT Balloon Curvature ---
+    float2 origP = (uv - 0.5) * 2.0; // [-1, 1] screen space
+    float2 p = origP;
     
     float sag = 0.0;
     if(u.hvSag > 0.003) { 
-        sag = u.hvSag * 0.035 * (lum3(u_tex.sample(s, float2(0.5)).rgb) + 0.35); 
+        sag = u.hvSag * 0.02 * (lum3(u_tex.sample(s, float2(0.5)).rgb) + 0.35); 
     }
     
-    p *= 1.0 + u.curvature * 0.09 * dot(p, p) - sag;
+    if (u.curvature > 0.001) {
+        float k = u.curvature * 0.20;
+        float r2 = p.x * p.x + p.y * p.y;
+        p = p * (1.0 + r2 * k);
+        p.y -= sag;
+    }
+    
     float2 cuv = p * 0.5 + 0.5;
     
     if(abs(u.lensDist) > 0.003) {
         float2 dl = cuv - 0.5; 
         float r2 = dot(dl, dl);
-        cuv = 0.5 + dl * (1.0 + u.lensDist * 0.9 * r2);
+        cuv = 0.5 + dl * (1.0 + u.lensDist * 0.2 * r2);
     }
     
     if(u.gateWeave > 0.003) {
         float tw = u.time * 1.7;
         float2 wv = float2(vnoise(float2(tw, 3.1)) - 0.5, vnoise(float2(tw * 0.8 + 11.0, 7.9)) - 0.5);
         wv += float2(0.0, (h21(float2(floor(u.time * 24.0), 5.0)) - 0.5) * 0.35);
-        cuv += wv * u.gateWeave * 0.03;
+        cuv += wv * u.gateWeave * 0.015;
     }
     
-    float2 ab = abs(p) - float2(1.0 - u.cornerRound * 0.18);
-    float corner = length(max(ab, 0.0)) - u.cornerRound * 0.18;
+    if(u.rollShutter > 0.003) { 
+        cuv.y += sin((uv.y * 3.0 + u.time * 0.7) * 3.14159) * u.rollShutter * 0.004; 
+    }
     
-    float caa = 1.0 / res.x * 0.75 + 1e-6; // approx fwidth
-    float tube = 1.0 - smoothstep(-caa, caa, corner);
+    // --- Tube Mask / Rounded CRT Glass Bezel (SDF) ---
+    float tube = 1.0;
+    if (cuv.x < 0.0 || cuv.x > 1.0 || cuv.y < 0.0 || cuv.y > 1.0) {
+        tube = 0.0;
+    } else if (u.cornerRound > 0.001) {
+        float r = clamp(u.cornerRound * 0.12, 0.002, 0.25);
+        float2 q = abs(cuv - 0.5) * 2.0; // [0, 1]
+        float2 b = float2(1.0) - float2(r * 2.0);
+        float2 cornerDist = max(q - b, float2(0.0));
+        float corner = length(cornerDist) - r * 2.0;
+        float aa = 2.0 / min(res.x, res.y);
+        tube = 1.0 - smoothstep(-aa, aa, corner);
+    }
     
-    float2 ed = min(cuv, 1.0 - cuv);
-    float2 ew = float2(1.0) / res * 0.75 + float2(1e-6);
-    tube *= smoothstep(0.0, ew.x, ed.x) * smoothstep(0.0, ew.y, ed.y);
+    if (tube <= 0.0) { 
+        outTex.write(float4(0.0, 0.0, 0.0, 1.0), gid); 
+        return; 
+    }
     
-    if(tube <= 0.0) { outTex.write(float4(0.0, 0.0, 0.0, 1.0), gid); return; }
-    
-    if(u.rollShutter > 0.003) { cuv.y += sin((uv.y * 3.0 + u.time * 0.7) * 3.14159) * u.rollShutter * 0.004; }
-    
+    // --- Source Sampling ---
     float3 c = u_tex.sample(s, clamp(cuv, 0.0, 1.0)).rgb;
     
+    // Lens Chromatic Aberration
     if(u.lensCA > 0.003) {
         float2 dc = cuv - 0.5;
         float kr = 1.0 + u.lensCA * 0.012, kb = 1.0 - u.lensCA * 0.012;
@@ -123,55 +147,87 @@ kernel void bendrCRT(texture2d<float, access::sample> u_tex [[texture(0)]],
         c.b = u_tex.sample(s, clamp(0.5 + dc * kb, 0.0, 1.0)).b;
     }
     
+    // Phosphor Persistence
     if(u.phosphor > 0.003 && u.hasPersist > 0.5) {
         c = max(c, u_persist.sample(s, clamp(cuv, 0.0, 1.0)).rgb);
     }
     
+    // --- Bloom, Defocus & Halation (Golden Angle Spiral) ---
     if(u.defocus > 0.003 || u.bloom > 0.003) {
         float2 px = 1.0 / res;
-        float3 blur = float3(0.0); float wsum = 0.0;
-        float rad = (1.5 + u.bloomRad * 16.0);
-        for(int i = 0; i < 12; i++) {
-            float a = float(i) * 0.5236;
-            float r = (1.0 + fmod(float(i), 3.0)) * 0.45;
-            float2 off = float2(cos(a), sin(a)) * rad * r * px;
+        float maxRad = 2.0 + u.bloomRad * 16.0;
+        float3 blur = float3(0.0); 
+        float wsum = 0.0;
+        for(int i = 0; i < 16; i++) {
+            float fi = float(i);
+            float ang = fi * 2.39996323; // Golden angle
+            float r = sqrt((fi + 0.5) / 16.0) * maxRad;
+            float2 off = float2(cos(ang), sin(ang)) * r * px;
             float2 tp = cuv + off;
-            float inb = step(0.0, tp.x) * step(tp.x, 1.0) * step(0.0, tp.y) * step(tp.y, 1.0);
-            float w = inb / (1.0 + r * 1.4);
-            blur += u_tex.sample(s, clamp(tp, 0.0, 1.0)).rgb * w; wsum += w;
+            if (tp.x >= 0.0 && tp.x <= 1.0 && tp.y >= 0.0 && tp.y <= 1.0) {
+                float w = 1.0 - (r / (maxRad + 1.0)) * 0.4;
+                blur += u_tex.sample(s, tp).rgb * w; 
+                wsum += w;
+            }
         }
         blur = (wsum > 0.0001) ? blur / wsum : c;
-        c = mix(c, blur, u.defocus * 0.85);
+        c = mix(c, blur, u.defocus * 0.75);
         if(u.bloom > 0.003) {
-            float3 hot = max(blur - 0.42, 0.0) * 1.9;
-            float3 tint = mix(float3(1.0), float3(1.25, 0.62, 0.42), u.halation);
-            c += hot * u.bloom * 1.5 * tint;
+            float3 hot = max(blur - 0.35, 0.0) * 1.5;
+            float3 tint = mix(float3(1.0), float3(1.25, 0.72, 0.48), u.halation);
+            c += hot * u.bloom * 1.2 * tint;
         }
     }
     
-    float model = u.outModel;
-    if(model > 0.5) {
-        float lines = (u.rows > 0.0 && u.rows <= 720.0) ? u.rows : 480.0;
-        float fy = fract(cuv.y * lines) - 0.5;
+    // --- Graduated CRT Raster Scanlines ---
+    if (u.scanlines > 0.001) {
+        float lines = (u.rows > 0.0 && u.rows <= 720.0) ? u.rows : 240.0;
+        // True graduated balloon curvature: scanlines arch upwards at top (dome), curve downwards at bottom, perfectly flat at equator
+        float edgeCurve = u.curvature * 0.20;
+        float scanY = origP.y * (1.0 + (1.0 - origP.x * origP.x) * edgeCurve);
+        float scanNorm = scanY * 0.5 + 0.5;
+        
+        float phase = scanNorm * lines * 6.2831853;
+        float beam = 0.5 + 0.5 * cos(phase);
         float bright = lum3(c);
-        float w = u.beamWidth * (0.35 + 0.65 * mix(1.0, bright, u.beamShape));
-        float beam = exp(-(fy * fy) / max(0.008, w * w * 0.22));
-        c *= mix(1.0, beam * 1.35, u.scanlines);
+        beam = pow(beam, mix(0.5, 0.85, bright));
+        c *= mix(1.0, beam * 1.25, u.scanlines);
+    }
+    
+    // Phosphor Mask / Aperture Grille
+    float model = u.outModel;
+    if (model > 0.5 && u.aperture > 0.001) {
         c *= mix(float3(1.0), maskAt(float2(gid), model, u.maskDark), u.aperture);
         if(model > 4.5) c = mix(c, float3(lum3(c)), 0.85);
         if(model > 5.5) c *= float3(0.75, 1.0, 0.8);
     }
     
+    // --- Color & Picture Adjustment ---
+    if (abs(u.outGamma - 1.0) > 0.001) {
+        c = pow(max(c, 0.0), float3(1.0 / max(0.15, u.outGamma)));
+    }
+    if (abs(u.outContrast - 1.0) > 0.001 || abs(u.outBright) > 0.001) {
+        c = (c - 0.5) * u.outContrast + 0.5 + u.outBright;
+    }
+    if (abs(u.outSat - 1.0) > 0.001) {
+        float L = lum3(c);
+        c = mix(float3(L), c, u.outSat);
+    }
+    if (abs(u.outWarmth) > 0.001) {
+        c *= mix(float3(1.0), float3(1.12, 1.0, 0.86), max(u.outWarmth, 0.0)) * 
+             mix(float3(1.0), float3(0.86, 1.0, 1.14), max(-u.outWarmth, 0.0));
+    }
     c = max(c - u.blackLevel, 0.0);
-    c = pow(max(c, 0.0), float3(1.0 / max(0.05, u.outGamma)));
-    c = (c - 0.5) * u.outContrast + 0.5 + u.outBright;
-    float L = lum3(c);
-    c = mix(float3(L), c, u.outSat);
-    c *= mix(float3(1.0), float3(1.12, 1.0, 0.86), max(u.outWarmth, 0.0)) * mix(float3(1.0), float3(0.86, 1.0, 1.14), max(-u.outWarmth, 0.0));
     c = min(c, float3(u.whiteClip));
     
-    c *= 1.0 - u.vignette * 0.9 * pow(length(p * 0.75), 2.6);
+    // Vignette
+    if (u.vignette > 0.001) {
+        float2 vp = (uv - 0.5) * float2(res.x / res.y, 1.0);
+        float vig = 1.0 - smoothstep(0.4, 1.2, length(vp)) * u.vignette * 0.75;
+        c *= clamp(vig, 0.0, 1.0);
+    }
     
+    // Glass reflection
     if(u.glassRefl > 0.003) {
         float g = smoothstep(0.75, 0.0, length(uv - float2(0.28, 0.78)));
         c += g * u.glassRefl * 0.16;
@@ -198,61 +254,6 @@ kernel void bendrCRT(texture2d<float, access::sample> u_tex [[texture(0)]],
     if(u.grain > 0.003) {
         float gn = h21(float2(gid) + fract(u.time) * float2(37.7, 71.3));
         c += (gn - 0.5) * u.grain * 0.16 * (0.35 + 0.65 * (1.0 - lum3(c)));
-    }
-    
-    if(u.lensStreak > 0.003) {
-        float3 st = float3(0.0); float sw = 0.0;
-        for(int i = 1; i <= 10; i++) {
-            float o = float(i) * (0.006 + u.bloomRad * 0.02);
-            float ww = 1.0 / float(i);
-            float2 lp = cuv + float2(o, 0.0), rp = cuv - float2(o, 0.0);
-            float li = step(0.0, lp.x) * step(lp.x, 1.0), ri = step(0.0, rp.x) * step(rp.x, 1.0);
-            st += max(u_tex.sample(s, clamp(lp, 0.0, 1.0)).rgb - 0.62, 0.0) * ww * li;
-            st += max(u_tex.sample(s, clamp(rp, 0.0, 1.0)).rgb - 0.62, 0.0) * ww * ri;
-            sw += ww * 2.0;
-        }
-        st /= max(sw, 0.0001);
-        c += st * u.lensStreak * 6.0 * mix(float3(1.0), float3(0.3, 0.55, 1.7), u.streakHue);
-    }
-    if(u.lensSmudge > 0.003) {
-        float sm = fbm2(uv * float2(5.0, 3.0)) * fbm2(uv * float2(11.0, 7.0) + 4.4);
-        sm = smoothstep(0.18, 0.62, sm);
-        float hl = max(lum3(c) - 0.35, 0.0);
-        c += sm * hl * u.lensSmudge * 1.6;
-        c = mix(c, c * (1.0 - sm * 0.35), u.lensSmudge * 0.4);
-    }
-    if(u.lightLeak > 0.003) {
-        float ang = u.time * 0.043;
-        float2 dir = float2(cos(ang), sin(ang));
-        float g = clamp(dot(uv - 0.5, dir) * 1.6 + 0.55, 0.0, 1.0);
-        g = pow(g, 2.4) * (0.55 + 0.45 * sin(u.time * 0.61) * 0.5 + 0.225);
-        g *= 0.75 + 0.25 * fbm2(uv * 3.0 + u.time * 0.05);
-        c += g * u.lightLeak * 1.1 * hsvOut(float3(fract(u.leakHue), 0.75, 1.0));
-    }
-    if(u.gateHair > 0.003) {
-        float sway = (vnoise(float2(u.time * 1.3, 2.0)) - 0.5) * 0.05;
-        float hx = 0.26 + sway + sin(uv.y * 9.0 + u.time * 0.4) * 0.02;
-        float hair = 1.0 - smoothstep(0.0008, 0.0026, abs(uv.x - hx));
-        hair *= smoothstep(1.0, 0.72, uv.y);
-        c = mix(c, c * 0.12, hair * u.gateHair);
-    }
-    if(u.lcdGrid > 0.003) {
-        float2 g = fract(float2(gid) / 3.0);
-        float gx = smoothstep(0.0, 0.16, g.x) * smoothstep(1.0, 0.84, g.x);
-        float gy = smoothstep(0.0, 0.22, g.y) * smoothstep(1.0, 0.78, g.y);
-        c *= mix(1.0, gx * gy * 1.22, u.lcdGrid);
-    }
-    if(u.stuckPix > 0.003) {
-        float2 pc = floor(float2(gid));
-        float r = h21(pc * 0.371 + 3.7);
-        if(r > 1.0 - u.stuckPix * 0.0035) {
-            float kind = h21(pc * 1.73 + 9.1);
-            if(kind < 0.42) c = float3(0.0);
-            else if(kind < 0.66) c = float3(1.0);
-            else if(kind < 0.78) c = float3(1.0, 0.0, 0.0);
-            else if(kind < 0.9) c = float3(0.0, 1.0, 0.0);
-            else c = float3(0.0, 0.0, 1.0);
-        }
     }
     
     if(u.letterbox > 0.001 && (uv.y < u.letterbox || uv.y > 1.0 - u.letterbox)) c = float3(0.0);

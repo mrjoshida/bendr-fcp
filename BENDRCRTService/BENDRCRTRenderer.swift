@@ -36,8 +36,9 @@ enum BENDRCRTRenderer {
 
         var mutableParams = params
         mutableParams.procRes = SIMD2<Float>(Float(dstTexture.width), Float(dstTexture.height))
-        mutableParams.rows = 480.0
+        mutableParams.rows = 240.0
         mutableParams.hasPersist = (previous != nil && mutableParams.phosphor > 0.003) ? 1.0 : 0.0
+
 
         encoder.setBytes(&mutableParams, length: MemoryLayout<CRTParams>.stride, index: 0)
 

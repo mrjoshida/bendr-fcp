@@ -32,25 +32,25 @@ kernel void bendrCorrupt(
     }
 
     constexpr sampler smp(address::clamp_to_edge, filter::linear);
-    constexpr sampler smpWrap(address::repeat, filter::linear);
     float2 uv = (float2(gid) + 0.5) / p.res;
     float2 suv = uv;
 
-    // Channel-driven drift warp
+    // Channel-driven drift warp (clamped to edge, no wrapping loops)
     if (p.driftWarp > 0.003) {
         for (int k = 0; k < 3; k++) {
-            float2 w = (inTex.sample(smpWrap, fract(suv)).rg - 0.5) * p.driftWarp * 0.06;
+            float2 w = (inTex.sample(smp, clamp(suv, 0.0, 1.0)).rg - 0.5) * p.driftWarp * 0.04;
             suv += w;
         }
     }
 
-    // FM warp — scan phase modulated by brightness
+    // FM warp — scan phase modulated by brightness (smooth timebase wobble)
     if (p.fmWarp > 0.003) {
-        float ph = uv.y * p.res.y * 0.35 + luma(inTex.sample(smp, clamp(suv, 0.0, 1.0)).rgb) * p.fmWarp * 24.0 + p.time * 2.0;
-        suv.x += sin(ph) * p.fmWarp * 0.025;
+        float lumaVal = luma(inTex.sample(smp, clamp(suv, 0.0, 1.0)).rgb);
+        float ph = uv.y * 32.0 + lumaVal * p.fmWarp * 6.28318 + p.time * 3.0;
+        suv.x += sin(ph) * p.fmWarp * 0.015;
     }
 
-    float3 c = inTex.sample(smpWrap, fract(suv)).rgb;
+    float3 c = inTex.sample(smp, clamp(suv, 0.0, 1.0)).rgb;
 
     // Databent macroblock shift
     if (p.blockShift > 0.003) {
@@ -60,7 +60,7 @@ kernel void bendrCorrupt(
         float r1 = h21(cell * 1.31 + tk * 17.0);
         if (r1 < p.blockShift * 0.4) {
             float2 off = (float2(h21(cell + 31.0 + tk), h21(cell + 57.0 + tk)) - 0.5) * 0.35 * p.blockShift;
-            float3 bc = inTex.sample(smpWrap, fract(suv + off)).rgb;
+            float3 bc = inTex.sample(smp, clamp(suv + off, 0.0, 1.0)).rgb;
             float r2 = h21(cell + 99.0);
             if (r2 < 0.22) bc = bc.gbr;
             else if (r2 < 0.38) bc = 1.0 - bc;
@@ -90,7 +90,7 @@ kernel void bendrCorrupt(
         float cellPx = mix(26.0, 6.0, p.dotSize);
         float2 g = uv * p.res / cellPx;
         float2 cc = (floor(g) + 0.5) * cellPx / p.res;
-        float3 cs = inTex.sample(smp, cc).rgb;
+        float3 cs = inTex.sample(smp, clamp(cc, 0.0, 1.0)).rgb;
         float lm = luma(cs);
         float r = length(fract(g) - 0.5);
         float m = smoothstep(lm * 0.72 + 0.06, lm * 0.72 - 0.06, r);
@@ -101,7 +101,7 @@ kernel void bendrCorrupt(
     if (p.dctAmt > 0.003) {
         float bs = mix(8.0, 32.0, p.dctBlock);
         float2 bCoord = floor(uv * p.res / bs) * bs / p.res;
-        float3 bSample = inTex.sample(smp, bCoord).rgb;
+        float3 bSample = inTex.sample(smp, clamp(bCoord, 0.0, 1.0)).rgb;
         float qStep = mix(0.02, 0.4, p.dctQ);
         float3 qCol = floor(bSample / qStep + 0.5) * qStep;
         c = mix(c, qCol, p.dctAmt);
