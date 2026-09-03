@@ -33,27 +33,27 @@ struct OpticsParams: BendrParams {
 }
 
 enum OpticsParamID: UInt32 {
-    case groupLens         = 13001
-    case lensCA            = 13002
-    case lensStreak        = 13003
-    case streakHue         = 13004
-    case bloom             = 13005
-    case bloomRad          = 13006
-    case halation          = 13007
-    case vignette          = 13008
+    case groupLens         = 9601
+    case lensCA            = 9602
+    case lensStreak        = 9603
+    case streakHue         = 9604
+    case bloom             = 9605
+    case bloomRad          = 9606
+    case halation          = 9607
+    case vignette          = 9608
 
-    case groupTexture      = 13010
-    case lensSmudge        = 13011
-    case lightLeak         = 13012
-    case leakHue           = 13013
-    case gateHair          = 13014
-    case dust              = 13015
-    case scratches         = 13016
-    case grain             = 13017
+    case groupTexture      = 9610
+    case lensSmudge        = 9611
+    case lightLeak         = 9612
+    case leakHue           = 9613
+    case gateHair          = 9614
+    case dust              = 9615
+    case scratches         = 9616
+    case grain             = 9617
 
-    case groupDisplay      = 13020
-    case lcdGrid           = 13021
-    case osdShow           = 13022
-    case osdMode           = 13023
-    case osdGlow           = 13024
+    case groupDisplay      = 9620
+    case lcdGrid           = 9621
+    case osdShow           = 9622
+    case osdMode           = 9623
+    case osdGlow           = 9624
 }

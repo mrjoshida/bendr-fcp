@@ -14,13 +14,12 @@ struct DirtyParams {
     float2 res;
 };
 
-// Continuous 1D band-limited analog RF noise along the raster scanline
-inline float analogScanlineNoise(float2 uv, float frameSeed, float resX) {
+// Continuous 1D band-limited analog RF noise along scanline carrier
+inline float analogCarrierNoise(float2 uv, float frameSeed, float resX) {
     float row = floor(uv.y * 480.0);
-    float scanPos = uv.x * resX * 0.25;
+    float scanPos = uv.x * resX * 0.95 + row * 19.37;
     float s0 = floor(scanPos);
     float sf = fract(scanPos);
-    // Smooth cubic hermite interpolation along the scanline RF carrier
     float sf2 = sf * sf * (3.0 - 2.0 * sf);
     float n0 = h21(float2(s0, row * 1.37 + frameSeed * 31.7));
     float n1 = h21(float2(s0 + 1.0, row * 1.37 + frameSeed * 31.7));
@@ -46,115 +45,157 @@ kernel void bendrDirty(
         return;
     }
 
-    // Dynamic per-frame seed (30 fps frame counter)
-    float frameSeed = floor(p.time * 30.0);
+    // 60Hz analog field timing
+    float frameSeed = floor(p.time * 60.0);
+    float scanlines = 480.0;
+    float row = uv.y * scanlines;
+    float rowI = floor(row);
     
-    // Macro fault events (periodic tape damage / tracking loss burst)
-    float dr = 1.0 + p.mixDirtRate * 8.0;
-    float ph = p.time * dr;
-    float tk = floor(ph);
-    float fr = fract(ph);
-    float eventTrigger = step(0.38, h21(float2(tk, 11.71) + p.mixDirt * 9.0));
-    float burstIntensity = eventTrigger * exp(-fr * mix(10.0, 2.5, p.mixDirt));
-    float totalDirt = clamp(p.mixDirt * 0.45 + burstIntensity * 0.75, 0.0, 1.5);
+    // Dynamic periodic desk knock / circuit fault oscillation
+    float faultRate = 1.0 + p.mixDirtRate * 4.5;
+    float faultPhase = p.time * faultRate;
+    float faultBlock = floor(faultPhase);
+    float faultFrac = fract(faultPhase);
+    
+    float hitRand = h21(float2(faultBlock, 7.31));
+    float isHit = step(0.30, hitRand);
+    float hitDecay = exp(-faultFrac * mix(6.5, 2.2, p.mixDirt));
+    float hitPower = isHit * hitDecay * p.mixDirt;
 
-    // 1. Timebase jitter & head switching flag waving
+    // 1. ANALOG TIMEBASE & SYNC DEVIATION (TBC Jitter, Tearing & Head Switching)
     float2 duv = uv;
-    if (p.mixDirtKnock > 0.003) {
-        float rowI = floor(uv.y * 480.0);
+    float totalKnock = p.mixDirtKnock * (p.mixDirt * 0.75 + hitPower * 1.4);
+    
+    if (totalKnock > 0.002) {
+        // A. Horizontal TBC loss bands (jagged analog scanline tearing across 12-36 lines)
+        float bandSize = 18.0 + 24.0 * h21(float2(faultBlock, 11.3));
+        float bandID = floor((row + frameSeed * 2.3) / bandSize);
+        float bandRand = h21(float2(bandID, frameSeed * 0.13));
         
-        // Analog horizontal line-to-line sync jitter
-        float lineNoise = (h21(float2(rowI * 0.23, frameSeed * 7.19)) - 0.5) * 0.015 * p.mixDirtKnock * totalDirt;
+        if (bandRand > 0.50) {
+            float tearStrength = (h21(float2(bandID, frameSeed * 0.37)) - 0.5) * 0.06 * totalKnock;
+            duv.x += tearStrength;
+        }
         
-        // CRT / VCR bottom head-switching glitch bar
-        float headSwitchZone = smoothstep(0.92, 1.0, uv.y);
-        float headSwitchShear = headSwitchZone * sin(uv.y * 80.0 + frameSeed) * 0.035 * p.mixDirtKnock * totalDirt;
+        // B. Fast analog line-by-line sync jitter
+        float lineJitter = (h21(float2(rowI * 1.33, frameSeed * 4.91)) - 0.5) * 0.012 * totalKnock;
+        duv.x += lineJitter;
         
-        // Top flag-waving skew
-        float flagWave = exp(-uv.y * 6.0) * sin(p.time * 25.0) * 0.02 * p.mixDirtKnock * totalDirt;
+        // C. Bottom head-switching glitch band (nonlinear phase shear)
+        float headZone = smoothstep(0.90, 0.99, uv.y);
+        float headShear = headZone * sin(uv.y * 110.0 + frameSeed * 0.7) * 0.035 * totalKnock;
+        duv.x += headShear;
         
-        // Macro horizontal jump on tracking hit
-        float macroJump = (h21(float2(tk, 3.41)) - 0.5) * 0.08 * p.mixDirtKnock * burstIntensity;
+        // D. Top tape tension skew (flag waving falloff)
+        float flagWave = exp(-uv.y * 5.5) * sin(p.time * 24.0 + rowI * 0.05) * 0.022 * totalKnock;
+        duv.x += flagWave;
         
-        duv.x += lineNoise + headSwitchShear + flagWave + macroJump;
-        duv.y = clamp(duv.y + (h21(float2(tk, 8.81)) - 0.5) * 0.025 * burstIntensity * p.mixDirtKnock, 0.0, 1.0);
+        // E. Vertical field rolling on hard knock
+        if (hitPower > 0.15) {
+            float vRoll = sin(p.time * 38.0) * 0.05 * hitPower;
+            duv.y = fract(duv.y + vRoll);
+        }
     }
 
-    // 2. Base video sampling with Y/C separation
-    float4 srcSample = inTex.sample(smp, clamp(duv, 0.0, 1.0));
-    float3 src = srcSample.rgb;
-    float alpha = srcSample.a;
+    // 2. Base Video Sample in YIQ Analog Domain with Chromatic Dispersion
+    float4 baseSample = inTex.sample(smp, clamp(duv, 0.0, 1.0));
+    float3 yiq = rgb2yiq(baseSample.rgb);
+    float alpha = baseSample.a;
 
-    // 3. Realistic Analog Tape Oxide Dropouts (horizontal streaking with exponential RC recovery)
-    if (p.mixDirtDrop > 0.003 && totalDirt > 0.01) {
-        float rowI = floor(uv.y * 480.0);
-        float lineRand = h21(float2(rowI, frameSeed * 13.37));
+    // 3. ANALOG PREAMP SLEW-RATE LIMITING & EDGE RINGING
+    float2 dX = float2(2.5 / p.res.x, 0.0);
+    float3 leftSample = inTex.sample(smp, clamp(duv - dX, 0.0, 1.0)).rgb;
+    float edgeLuma = luma(baseSample.rgb) - luma(leftSample);
+    yiq.x += edgeLuma * 0.5 * p.mixDirt;
+
+    // 4. AUTHENTIC MULTI-SCALE ANALOG TAPE OXIDE DROPOUTS
+    if (p.mixDirtDrop > 0.003) {
+        float dropDensity = p.mixDirtDrop * (0.35 + p.mixDirt * 0.55 + hitPower * 0.7);
         
-        float dropThresh = 1.0 - (p.mixDirtDrop * totalDirt * 0.07);
-        if (lineRand > dropThresh) {
-            float streakStart = h21(float2(rowI, frameSeed * 5.11));
-            float streakLen = 0.05 + 0.55 * h21(float2(rowI, frameSeed * 19.33));
+        // Evaluate 6 distinct analog dropout events across the field
+        for (int k = 0; k < 6; k++) {
+            float fk = float(k);
+            float bandCenter = h21(float2(fk * 17.7, frameSeed * 5.31 + fk * 11.9)) * scanlines;
+            float rowDist = abs(row - bandCenter);
             
-            if (uv.x >= streakStart && uv.x <= streakStart + streakLen) {
-                float progress = (uv.x - streakStart) / streakLen;
-                // Exponential decay tail at the end of the dropout (head amplifier recovery)
-                float tailDecay = exp(-progress * 2.5);
-                float flakeType = h21(float2(rowI, frameSeed * 29.7));
+            // Soft vertical profile across 2-4 scanlines
+            if (rowDist < 4.0) {
+                float vertEnvelope = exp(-rowDist * rowDist * 0.28);
+                float dropTrigger = h21(float2(bandCenter, frameSeed * 13.7 + fk * 29.3));
                 
-                if (flakeType < 0.4) {
-                    // Bright white RF streak (demodulator saturated peak) with soft edges
-                    src = mix(src, float3(0.92, 0.94, 0.98), tailDecay * 0.9);
-                } else if (flakeType < 0.7) {
-                    // Signal black loss
-                    src = mix(src, float3(0.04), tailDecay * 0.85);
-                } else {
-                    // Y/C delay chromatic smear (red/cyan fringe)
-                    float2 cOffset = float2(-0.03 * tailDecay, 0.0);
-                    float3 smearedChroma = inTex.sample(smp, clamp(duv + cOffset, 0.0, 1.0)).rgb;
-                    src = mix(src, smearedChroma.brg, 0.75 * tailDecay);
+                if (dropTrigger > 1.0 - dropDensity * 0.35) {
+                    float startX = h21(float2(bandCenter, frameSeed * 2.91 + fk * 13.7));
+                    float lenX = 0.06 + 0.60 * h21(float2(bandCenter, frameSeed * 8.17 + fk * 37.1));
+                    
+                    if (uv.x >= startX && uv.x <= startX + lenX) {
+                        float progress = (uv.x - startX) / lenX;
+                        // Organic attack and exponential RC decay tail
+                        float attack = smoothstep(0.0, 0.06, progress);
+                        float decay = exp(-progress * 3.0);
+                        float env = attack * decay * vertEnvelope;
+                        
+                        float dropMode = h21(float2(bandCenter, frameSeed * 37.9 + fk * 9.1));
+                        
+                        if (dropMode < 0.42) {
+                            // Demodulator saturation surge (luminous white RF burst with cyan glow)
+                            yiq.x = mix(yiq.x, 1.15, env * 0.90);
+                            yiq.yz *= (1.0 - env * 0.92);
+                        } else if (dropMode < 0.75) {
+                            // Oxide gap loss (luma signal droop + analog carrier hiss)
+                            float hiss = (h21(float2(gid.x, gid.y + frameSeed * 7.0)) - 0.5) * 0.4;
+                            yiq.x = mix(yiq.x, 0.06 + hiss, env * 0.85);
+                            yiq.yz *= (1.0 - env * 0.80);
+                        } else {
+                            // Demodulator PLL unlock chromatic burst (phase swing in I/Q subcarrier)
+                            float phaseAngle = progress * 18.0 + frameSeed * 1.5;
+                            float2 chromBurst = float2(cos(phaseAngle), sin(phaseAngle)) * 0.4;
+                            yiq.yz = mix(yiq.yz, chromBurst, env * 0.85);
+                        }
+                    }
                 }
             }
         }
     }
 
-    // 4. Analog Magnetic Tape Oxide Spots / Clumps (spanning 2-4 lines with soft organic contours)
-    float2 clumpGrid = uv * float2(16.0, 12.0);
-    float2 clumpID = floor(clumpGrid);
-    float clumpRand = h21(clumpID + float2(frameSeed * 3.3, frameSeed * 7.7));
-    if (clumpRand > 1.0 - p.mixDirt * 0.08) {
-        float2 clumpCenter = clumpID + float2(h21(clumpID + 1.1), h21(clumpID + 2.2));
-        float dist = length((clumpGrid - clumpCenter) * float2(0.5, 2.5)); // Horizontally stretched magnetic smear
-        if (dist < 0.45) {
-            float clumpMask = smoothstep(0.45, 0.1, dist);
-            src = mix(src, float3(0.05), clumpMask * 0.7 * p.mixDirt);
+    // 5. TAPE CREASE & TRANSVERSE WRINKLE TRACK (Diagonal physical tape crease)
+    if (p.mixDirt > 0.15) {
+        float creasePos = fract(p.time * 0.12 + 0.4);
+        float creaseDist = abs(uv.y - creasePos + (uv.x - 0.5) * 0.15);
+        if (creaseDist < 0.025) {
+            float cEnv = smoothstep(0.025, 0.002, creaseDist) * p.mixDirt * 0.6;
+            // Crease luma shift and phase distortion
+            yiq.x = mix(yiq.x, yiq.x * 0.5 + 0.35, cEnv * 0.5);
+            yiq.y += sin(uv.x * 40.0 + frameSeed) * 0.15 * cEnv;
+            yiq.z += cos(uv.x * 40.0 + frameSeed) * 0.15 * cEnv;
         }
     }
 
-    // 5. 60Hz Ground Loop Hum Bar (soft rolling luma shading)
-    float humPos = fract(uv.y * 1.5 - p.time * 0.4);
-    float humBar = sin(humPos * 2.0 * PI) * 0.045 * p.mixDirt;
-    src = clamp(src + float3(humBar), 0.0, 1.0);
+    // 6. 60Hz & 120Hz ROLLING GROUND LOOP HUM BARS
+    float hum = sin(uv.y * 6.28318 * 2.0 - p.time * 3.5) * 0.05 * p.mixDirt
+              + sin(uv.y * 6.28318 * 4.0 - p.time * 7.0) * 0.025 * p.mixDirt;
+    yiq.x += hum;
 
-    // 6. Analog RF demodulation noise (continuous scanline carrier, not digital pixels)
+    // 7. CONTINUOUS ANALOG BAND-LIMITED SCANLINE RF NOISE
     if (p.mixDirtNoise > 0.003) {
-        float rfNoise = analogScanlineNoise(uv, frameSeed, p.res.x);
-        float noiseGain = p.mixDirtNoise * (0.08 + totalDirt * 0.18);
-        src += float3(rfNoise * noiseGain);
-        // Slight chromatic noise dispersion
-        float rfChroma = analogScanlineNoise(uv + float2(0.01, 0.0), frameSeed + 1.0, p.res.x);
-        src.rb += float2(rfChroma * noiseGain * 0.4, -rfChroma * noiseGain * 0.4);
+        float rfLuma = analogCarrierNoise(uv, frameSeed, p.res.x);
+        float rfChrom = analogCarrierNoise(uv + float2(0.015, 0.0), frameSeed + 17.0, p.res.x * 0.6);
+        float noiseGain = p.mixDirtNoise * (0.06 + p.mixDirt * 0.14 + hitPower * 0.20);
+        
+        yiq.x += rfLuma * noiseGain;
+        yiq.yz += float2(rfChrom) * noiseGain * 0.5;
     }
 
-    // 7. Momentary signal solarization / flash on tracking burst
-    if (p.mixDirtCut > 0.003 && burstIntensity > 0.08) {
-        float cutSeed = h21(float2(tk, 13.9));
-        float flashAmt = burstIntensity * p.mixDirtCut;
-        if (cutSeed > 0.7) {
-            src = mix(src, 1.0 - src, clamp(flashAmt * 1.2, 0.0, 0.9));
-        } else if (cutSeed > 0.4) {
-            src = mix(src, float3(1.15, 1.1, 0.95), clamp(flashAmt * 1.1, 0.0, 0.85));
+    // 8. INTERMITTENT DESK VOLTAGE BROWNOUT SAG & FLASH CUTS
+    if (p.mixDirtCut > 0.003 && hitPower > 0.12) {
+        float cutTrigger = h21(float2(faultBlock, 71.3));
+        if (cutTrigger > 0.65) {
+            float sagAmount = hitPower * p.mixDirtCut;
+            yiq.x = pow(max(yiq.x, 0.0), 1.0 + sagAmount * 1.8) * (1.0 - sagAmount * 0.45);
+            yiq.yz *= (1.0 - sagAmount * 0.65);
         }
     }
 
-    outTex.write(float4(clamp(src, 0.0, 1.5), alpha), gid);
+    // Convert back from YIQ to RGB with analog clamping
+    float3 finalRGB = yiq2rgb(yiq);
+    outTex.write(float4(clamp(finalRGB, 0.0, 1.2), alpha), gid);
 }

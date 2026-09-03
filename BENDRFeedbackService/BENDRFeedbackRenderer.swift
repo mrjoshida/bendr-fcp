@@ -52,7 +52,7 @@ enum BENDRFeedbackRenderer {
         mutableParams.srcAspect = Float(dstTexture.width) / Float(dstTexture.height)
         mutableParams.hasSrc = 1.0
         mutableParams.hasDelay = history.isEmpty ? 0.0 : 1.0
-        mutableParams.generationCount = UInt32(min(history.count, 16))
+        mutableParams.generationCount = 16
         encoder.setBytes(&mutableParams, length: MemoryLayout<FeedbackParams>.stride, index: 0)
 
         BendrRender.dispatch(encoder: encoder, pipeline: pipeline, width: dstTexture.width, height: dstTexture.height)

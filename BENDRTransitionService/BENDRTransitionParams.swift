@@ -32,30 +32,30 @@ struct TransitionParams: BendrParams {
 }
 
 enum TransitionParamID: UInt32 {
-    case groupTransition   = 11001
-    case abMix             = 11002
-    case mixMode           = 11003
-    case mixBlend          = 11004
+    case groupTransition   = 9201
+    case abMix             = 9202
+    case mixMode           = 9203
+    case mixBlend          = 9204
 
-    case groupWipe         = 11010
-    case wipeSoft          = 11011
-    case wipeDetail        = 11012
-    case wipeX             = 11013
-    case wipeY             = 11014
-    case wipeInv           = 11015
-    case wipeBord          = 11016
-    case wipeBordCol       = 11017
-    case wipeRep           = 11018
+    case groupWipe         = 9210
+    case wipeSoft          = 9211
+    case wipeDetail        = 9212
+    case wipeX             = 9213
+    case wipeY             = 9214
+    case wipeInv           = 9215
+    case wipeBord          = 9216
+    case wipeBordCol       = 9217
+    case wipeRep           = 9218
 
-    case groupKey          = 11020
-    case mixKey            = 11021
-    case mixKeyThresh      = 11022
-    case mixKeySoft        = 11023
-    case mixKeyHue         = 11024
-    case mixKeyInv         = 11025
-    case mixKeyGain        = 11026
-    case mixKeyDens        = 11027
-    case mixKeyEdge        = 11028
-    case mixKeyEdgeCol     = 11029
-    case mixKeyShadow      = 11030
+    case groupKey          = 9220
+    case mixKey            = 9221
+    case mixKeyThresh      = 9222
+    case mixKeySoft        = 9223
+    case mixKeyHue         = 9224
+    case mixKeyInv         = 9225
+    case mixKeyGain        = 9226
+    case mixKeyDens        = 9227
+    case mixKeyEdge        = 9228
+    case mixKeyEdgeCol     = 9229
+    case mixKeyShadow      = 9230
 }

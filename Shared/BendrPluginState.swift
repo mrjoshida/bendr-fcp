@@ -28,19 +28,19 @@ extension BendrParams {
 /// FxPlug parameter IDs must be positive integers 1–9998
 enum BendrParamGroup {
     // Reserve ID ranges per plugin to avoid collisions
-    // Each plugin uses a 1000-wide range
-    static let vhsBase       = 1000
+    // All IDs must be between 1 and 9998 (10000+ is reserved by Motion engine)
+    static let vhsBase        = 1000
     static let crtBase        = 2000
     static let feedbackBase   = 3000
     static let colourBase     = 4000
     static let scanBase       = 5000
     static let corruptBase    = 6000
     static let flowBase       = 7000
-    static let signalLabBase  = 8000
-    static let meltBase       = 9000
-    static let dirtyBase      = 9500
-    static let synthBase      = 10000
-    static let transitionBase = 11000
-    static let spatialBase    = 12000
-    static let opticsBase     = 13000
+    static let signalLabBase  = 7500
+    static let meltBase       = 8000
+    static let dirtyBase      = 8500
+    static let synthBase      = 9000
+    static let transitionBase = 9200
+    static let spatialBase    = 9400
+    static let opticsBase     = 9600
 }

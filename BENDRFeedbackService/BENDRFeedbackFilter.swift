@@ -42,10 +42,10 @@ public class BENDRFeedbackFilter: NSObject, FxTileableEffect {
         parmsApi.addFloatSlider(withName: "Fold Ctr Y", parameterID: FeedbackParamID.kaleidoY.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
 
         // Group 2: Feedback Core
-        parmsApi.addFloatSlider(withName: "Amount", parameterID: FeedbackParamID.fbAmount.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 0.99, sliderMin: 0.0, sliderMax: 0.97, delta: 0.01, parameterFlags: 0)
-        parmsApi.addFloatSlider(withName: "Zoom", parameterID: FeedbackParamID.fbZoom.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.addFloatSlider(withName: "Rotate", parameterID: FeedbackParamID.fbRotate.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
-        parmsApi.addFloatSlider(withName: "Hue Spin", parameterID: FeedbackParamID.fbHue.rawValue, defaultValue: 0.0, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
+        parmsApi.addFloatSlider(withName: "Amount", parameterID: FeedbackParamID.fbAmount.rawValue, defaultValue: 0.75, parameterMin: 0.0, parameterMax: 0.99, sliderMin: 0.0, sliderMax: 0.97, delta: 0.01, parameterFlags: 0)
+        parmsApi.addFloatSlider(withName: "Zoom", parameterID: FeedbackParamID.fbZoom.rawValue, defaultValue: 0.15, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
+        parmsApi.addFloatSlider(withName: "Rotate", parameterID: FeedbackParamID.fbRotate.rawValue, defaultValue: 0.08, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
+        parmsApi.addFloatSlider(withName: "Hue Spin", parameterID: FeedbackParamID.fbHue.rawValue, defaultValue: 0.05, parameterMin: 0.0, parameterMax: 1.0, sliderMin: 0.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Shift X", parameterID: FeedbackParamID.fbShiftX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Shift Y", parameterID: FeedbackParamID.fbShiftY.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)
         parmsApi.addFloatSlider(withName: "Shear X", parameterID: FeedbackParamID.fbShearX.rawValue, defaultValue: 0.0, parameterMin: -1.0, parameterMax: 1.0, sliderMin: -1.0, sliderMax: 1.0, delta: 0.01, parameterFlags: 0)

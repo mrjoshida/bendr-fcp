@@ -36,30 +36,30 @@ struct SpatialParams: BendrParams {
 }
 
 enum SpatialParamID: UInt32 {
-    case groupFraming      = 12001
-    case srcZoom           = 12002
-    case srcX              = 12003
-    case srcY              = 12004
-    case srcRot            = 12005
-    case flipMode          = 12006
-    case mirrorMode        = 12007
-    case multiN            = 12008
+    case groupFraming      = 9401
+    case srcZoom           = 9402
+    case srcX              = 9403
+    case srcY              = 9404
+    case srcRot            = 9405
+    case flipMode          = 9406
+    case mirrorMode        = 9407
+    case multiN            = 9408
 
-    case groupKaleido      = 12010
-    case kaleido           = 12011
-    case kaleidoN          = 12012
-    case kaleidoRot        = 12013
-    case kaleidoX          = 12014
-    case kaleidoY          = 12015
+    case groupKaleido      = 9410
+    case kaleido           = 9411
+    case kaleidoN          = 9412
+    case kaleidoRot        = 9413
+    case kaleidoX          = 9414
+    case kaleidoY          = 9415
 
-    case groupShake        = 12020
-    case shake             = 12021
-    case shakeRate         = 12022
+    case groupShake        = 9420
+    case shake             = 9421
+    case shakeRate         = 9422
 
-    case groupTimeDisp     = 12030
-    case tdAmt             = 12031
-    case tdMap             = 12032
-    case tdSpread          = 12033
-    case tdSoft            = 12034
-    case tdWarp            = 12035
+    case groupTimeDisp     = 9430
+    case tdAmt             = 9431
+    case tdMap             = 9432
+    case tdSpread          = 9433
+    case tdSoft            = 9434
+    case tdWarp            = 9435
 }

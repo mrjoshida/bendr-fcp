@@ -41,35 +41,35 @@ struct SynthParams: BendrParams {
 }
 
 enum SynthParamID: UInt32 {
-    case groupGeometry     = 10001
-    case shape             = 10002
-    case wave              = 10003
-    case genFreqX          = 10004
-    case genFreqY          = 10005
-    case genPhase          = 10006
-    case genRate           = 10007
-    case genRot            = 10008
-    case genSkew           = 10009
-    case genCX             = 10010
-    case genCY             = 10011
-    case genZoom           = 10012
-    case genFoldN          = 10013
+    case groupGeometry     = 9001
+    case shape             = 9002
+    case wave              = 9003
+    case genFreqX          = 9004
+    case genFreqY          = 9005
+    case genPhase          = 9006
+    case genRate           = 9007
+    case genRot            = 9008
+    case genSkew           = 9009
+    case genCX             = 9010
+    case genCY             = 9011
+    case genZoom           = 9012
+    case genFoldN          = 9013
 
-    case groupModulation   = 10020
-    case genFM             = 10021
-    case genFold           = 10022
-    case genPulse          = 10023
-    case genComp           = 10024
-    case genThresh         = 10025
-    case genSoft           = 10026
-    case genWarp           = 10027
+    case groupModulation   = 9020
+    case genFM             = 9021
+    case genFold           = 9022
+    case genPulse          = 9023
+    case genComp           = 9024
+    case genThresh         = 9025
+    case genSoft           = 9026
+    case genWarp           = 9027
 
-    case groupColor        = 10030
-    case colmode           = 10031
-    case genHue            = 10032
-    case genSpread         = 10033
-    case genSat            = 10034
-    case genBright         = 10035
-    case genBands          = 10036
-    case blendWithSource   = 10037
+    case groupColor        = 9030
+    case colmode           = 9031
+    case genHue            = 9032
+    case genSpread         = 9033
+    case genSat            = 9034
+    case genBright         = 9035
+    case genBands          = 9036
+    case blendWithSource   = 9037
 }
